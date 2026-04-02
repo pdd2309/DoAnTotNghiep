@@ -17,7 +17,9 @@ public partial class NguoiDung
 
     public string? VaiTro { get; set; }
 
-    public virtual ICollection<DanhGia> DanhGia { get; set; } = new List<DanhGia>();
+    public virtual ICollection<DanhGium> DanhGia { get; set; } = new List<DanhGium>();
 
     public virtual ICollection<DonHang> DonHangs { get; set; } = new List<DonHang>();
+
+    public virtual ICollection<GioHang> GioHangs { get; set; } = new List<GioHang>();
 }

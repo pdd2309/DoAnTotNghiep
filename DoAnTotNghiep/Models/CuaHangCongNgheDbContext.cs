@@ -19,11 +19,13 @@ public partial class CuaHangCongNgheDbContext : DbContext
 
     public virtual DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
 
-    public virtual DbSet<DanhGia> DanhGia { get; set; }
+    public virtual DbSet<DanhGium> DanhGia { get; set; }
 
     public virtual DbSet<DanhMuc> DanhMucs { get; set; }
 
     public virtual DbSet<DonHang> DonHangs { get; set; }
+
+    public virtual DbSet<GioHang> GioHangs { get; set; }
 
     public virtual DbSet<LienHe> LienHes { get; set; }
 
@@ -32,6 +34,7 @@ public partial class CuaHangCongNgheDbContext : DbContext
     public virtual DbSet<SanPham> SanPhams { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=CuaHangCongNgheDB;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,7 +71,7 @@ public partial class CuaHangCongNgheDbContext : DbContext
                 .HasConstraintName("FK__ChiTietDo__MaSan__59063A47");
         });
 
-        modelBuilder.Entity<DanhGia>(entity =>
+        modelBuilder.Entity<DanhGium>(entity =>
         {
             entity.HasKey(e => e.MaDanhGia).HasName("PK__DanhGia__AA9515BF49A0A7F1");
 
@@ -119,6 +122,28 @@ public partial class CuaHangCongNgheDbContext : DbContext
             entity.HasOne(d => d.MaNguoiDungNavigation).WithMany(p => p.DonHangs)
                 .HasForeignKey(d => d.MaNguoiDung)
                 .HasConstraintName("FK__DonHang__MaNguoi__5535A963");
+        });
+
+        modelBuilder.Entity<GioHang>(entity =>
+        {
+            entity.HasKey(e => e.MaGioHang).HasName("PK__GioHang__F5001DA31DD434F0");
+
+            entity.ToTable("GioHang");
+
+            entity.Property(e => e.NgayThem)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.SoLuong).HasDefaultValue(1);
+
+            entity.HasOne(d => d.MaNguoiDungNavigation).WithMany(p => p.GioHangs)
+                .HasForeignKey(d => d.MaNguoiDung)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__GioHang__MaNguoi__17F790F9");
+
+            entity.HasOne(d => d.MaSanPhamNavigation).WithMany(p => p.GioHangs)
+                .HasForeignKey(d => d.MaSanPham)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__GioHang__MaSanPh__18EBB532");
         });
 
         modelBuilder.Entity<LienHe>(entity =>

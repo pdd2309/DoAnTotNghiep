@@ -1,0 +1,122 @@
+﻿@{
+    // Khai báo để nó biết phải "lắp" cái ruột này vào cái khung Layout
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="hero__categories">
+                    <div class="hero__categories__all">
+                        <i class="fa fa-bars"></i>
+                        <span>Tất cả danh mục</span>
+                    </div>
+                    <ul>
+                        <li><a href="#">Điện Thoại</a></li>
+                        <li><a href="#">Laptop</a></li>
+                        <li><a href="#">Máy Tính Bảng</a></li>
+                        <li><a href="#">Tai Nghe</a></li>
+                        <li><a href="#">Đồng Hồ Thông Minh</a></li>
+                        <li><a href="#">Camera</a></li>
+                        <li><a href="#">Thiết Bị Âm Thanh</a></li>
+                        <li><a href="#">Pin & Sạc</a></li>
+                        <li><a href="#">Phụ Kiện</a></li>
+                        <li><a href="#">Gaming</a></li>
+                        <li><a href="#">Máy Ảnh Chuyên Nghiệp</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <div class="hero__search">
+                    <div class="hero__search__form">
+                        <form action="#">
+                            <div class="hero__search__categories">
+                                Tất cả Danh Mục
+                                <span class="arrow_carrot-down"></span>
+                            </div>
+                            <input type="text" placeholder="Bạn cần tìm gì?">
+                            <button type="submit" class="site-btn">TÌM KIẾM</button>
+                        </form>
+                    </div>
+                    <div class="hero__search__phone">
+                        <div class="hero__search__phone__icon">
+                            <i class="fa fa-phone"></i>
+                        </div>
+                        <div class="hero__search__phone__text">
+                            <h5>+84 123 456 789</h5>
+                            <span>Hỗ trợ 24/7</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero__item set-bg" data-setbg="/img/hero/banner.jpg">
+                    <div class="hero__text">
+                        <span>CÔNG NGHỆ MỚI</span>
+                        <h2>Sản Phẩm <br />Chất Lượng Cao</h2>
+                        <p>Giao hàng nhanh - Hàng Chính Hãng 100%</p>
+                        <a href="#" class="primary-btn">MUA NGAY</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="categories">
+    <div class="container">
+        <div class="row">
+            <div class="categories__slider owl-carousel">
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="/img/categories/cat-1.jpg">
+                        <h5><a href="#">Điện Thoại</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="/img/categories/cat-2.jpg">
+                        <h5><a href="#">Laptop</a></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="featured spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <h2>Sản Phẩm Nổi Bật</h2>
+                </div>
+                <div class="featured__controls">
+                    <ul>
+                        <li class="active" data-filter="*">Tất Cả</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row featured__filter" id="product-list">
+        </div>
+    </div>
+</section>
+
+<div class="banner">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="banner__pic">
+                    <img src="/img/banner/banner-1.jpg" alt="">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="banner__pic">
+                    <img src="/img/banner/banner-2.jpg" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="/js/fetch-products.js"></script>
+    <script src="/js/categories.js"></script>
+}

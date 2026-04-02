@@ -1,0 +1,30 @@
+﻿@{
+    Layout = "_Layout"; // Để nó tự đắp Header/Footer vào
+}
+
+<div class="container" style="padding: 100px 0;">
+    <div class="row justify-content-center">
+        <div class="col-lg-4 text-center">
+            <div class="section-title">
+                <h2>Đăng Nhập</h2>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <form action="/Account/Login" method="post">
+                <div class="checkout__input">
+                    <p>Tên đăng nhập<span>*</span></p>
+                    <input type="text" name="username" style="width: 100%; height: 45px; border: 1px solid #ebebeb; padding-left: 20px; margin-bottom: 20px;" required>
+                </div>
+                <div class="checkout__input">
+                    <p>Mật khẩu<span>*</span></p>
+                    <input type="password" name="password" style="width: 100%; height: 45px; border: 1px solid #ebebeb; padding-left: 20px; margin-bottom: 20px;" required>
+                </div>
+                <button type="submit" class="site-btn" style="width: 100%;">VÀO CỬA HÀNG</button>
+            </form>
+        </div>
+    </div>
+</div>
