@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Cửa Hàng Công Nghệ">
+    <meta name="keywords" content="Công Nghệ, Điện Tử, Thiết Bị, HTML">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chi Tiết Bài Viết | Cửa Hàng Công Nghệ</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+</head>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Humberger Begin -->
+    <div class="humberger__menu__overlay"></div>
+    <div class="humberger__menu__wrapper">
+        <div class="humberger__menu__logo">
+            <a href="#"><img src="img/logo.png" alt=""></a>
+        </div>
+        <div class="humberger__menu__cart">
+            <ul>
+                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
+                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+            </ul>
+            <div class="header__cart__price">Tổng: <span>150.000đ</span></div>
+        </div>
+        <div class="humberger__menu__widget">
+        
+            <div class="header__top__right__auth">
+                <a href="#"><i class="fa fa-user"></i> Đăng Nhập</a>
+            </div>
+        </div>
+        <nav class="humberger__menu__nav mobile-menu">
+            <ul>
+                <li><a href="./index.html">Trang Chủ</a></li>
+                <li><a href="./shop-grid.html">Cửa Hàng</a></li>
+                <li>
+                    <a href="#">Trang</a>
+                    <ul class="header__menu__dropdown">
+                        <li><a href="./shop-details.html">Chi Tiết Sản Phẩm</a></li>
+                        <li><a href="./shoping-cart.html">Giỏ Hàng</a></li>
+                        <li><a href="./checkout.html">Thanh Toán</a></li>
+                        <li><a href="./blog-details.html">Chi Tiết Bài Viết</a></li>
+                    </ul>
+                </li>
+                <li class="active"><a href="./blog.html">Blog</a></li>
+                <li><a href="./contact.html">Liên Hệ</a></li>
+            </ul>
+        </nav>
+        <div id="mobile-menu-wrap"></div>
+        <div class="header__top__right__social">
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-linkedin"></i></a>
+            <a href="#"><i class="fa fa-pinterest-p"></i></a>
+        </div>
+        <div class="humberger__menu__contact">
+            <ul>
+                <li><i class="fa fa-envelope"></i> hello@congnghe.com</li>
+                <li>Miễn phí vận chuyển cho đơn hàng trên 500.000đ</li>
+            </ul>
+        </div>
+    </div>
+    <!-- Humberger End -->
+    <!-- Header Section Begin -->
+    <header class="header">
+        <div class="header__top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="header__top__left">
+                            <ul>
+                                <li><i class="fa fa-envelope"></i> hello@congnghe.com</li>
+                                <li>Miễn phí vận chuyển cho đơn hàng trên 500.000đ</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="header__top__right">
+                            <div class="header__top__right__social">
+                                <a href="#"><i class="fa fa-facebook"></i></a>
+                                <a href="#"><i class="fa fa-twitter"></i></a>
+                                <a href="#"><i class="fa fa-linkedin"></i></a>
+                                <a href="#"><i class="fa fa-pinterest-p"></i></a>
+                            </div>
+                           
+                            <div class="header__top__right__auth">
+                                <a href="#"><i class="fa fa-user"></i> Đăng Nhập</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="header__logo">
+                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <nav class="header__menu">
+                        <ul>
+                            <li><a href="./index.html">Trang Chủ</a></li>
+                            <li><a href="./shop-grid.html">Cửa Hàng</a></li>
+                            <li>
+                                <a href="#">Trang</a>
+                                <ul class="header__menu__dropdown">
+                                    <li><a href="./shop-details.html">Chi Tiết Sản Phẩm</a></li>
+                                    <li><a href="./shoping-cart.html">Giỏ Hàng</a></li>
+                                    <li><a href="./checkout.html">Thanh Toán</a></li>
+                                    <li><a href="./blog-details.html">Chi Tiết Bài Viết</a></li>
+                                </ul>
+                            </li>
+                            <li class="active"><a href="./blog.html">Blog</a></li>
+                            <li><a href="./contact.html">Liên Hệ</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3">
+                    <div class="header__cart">
+                        <ul>
+                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
+                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                        </ul>
+                        <div class="header__cart__price">Tổng: <span>150.000đ</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="humberger__open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <!-- Header Section End -->
+    <!-- Hero Section Begin -->
+    <section class="hero hero-normal">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="hero__categories">
+                        <div class="hero__categories__all">
+                            <i class="fa fa-bars"></i>
+                            <span>Tất cả danh mục</span>
+                        </div>
+                        <ul>
+                            <li><a href="#">Điện Thoại</a></li>
+                            <li><a href="#">Laptop</a></li>
+                            <li><a href="#">Máy Tính Bảng</a></li>
+                            <li><a href="#">Tai Nghe</a></li>
+                            <li><a href="#">Đồng Hồ Thông Minh</a></li>
+                            <li><a href="#">Camera</a></li>
+                            <li><a href="#">Thiết Bị Âm Thanh</a></li>
+                            <li><a href="#">Pin & Sạc</a></li>
+                            <li><a href="#">Phụ Kiện</a></li>
+                            <li><a href="#">Gaming</a></li>
+                            <li><a href="#">Máy Ảnh Chuyên Nghiệp</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="hero__search">
+                        <div class="hero__search__form">
+                            <form action="#">
+                                <div class="hero__search__categories">
+                                    Tất cả Danh Mục
+                                    <span class="arrow_carrot-down"></span>
+                                </div>
+                                <input type="text" placeholder="Bạn cần tìm gì?">
+                                <button type="submit" class="site-btn">TÌM KIẾM</button>
+                            </form>
+                        </div>
+                        <div class="hero__search__phone">
+                            <div class="hero__search__phone__icon">
+                                <i class="fa fa-phone"></i>
+                            </div>
+                            <div class="hero__search__phone__text">
+                                <h5>+84 123 456 789</h5>
+                                <span>Hỗ trợ 24/7</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Hero Section End -->
+    <!-- Blog Details Hero Begin -->
+    <section class="blog-details-hero set-bg" data-setbg="img/blog/details/details-hero.jpg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="blog__details__hero__text">
+                        <h2>So Sánh iPhone vs Android - Chọn Điện Thoại Nào?</h2>
+                        <ul>
+                            <li>Bởi Nguyễn Văn A</li>
+                            <li>01 Tháng 01, 2024</li>
+                            <li>8 Bình Luận</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Blog Details Hero End -->
+    <!-- Blog Details Section Begin -->
+    <section class="blog-details spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-5 order-md-1 order-2">
+                    <div class="blog__sidebar">
+                        <div class="blog__sidebar__search">
+                            <form action="#">
+                                <input type="text" placeholder="Tìm kiếm...">
+                                <button type="submit"><span class="icon_search"></span></button>
+                            </form>
+                        </div>
+                        <div class="blog__sidebar__item">
+                            <h4>Danh Mục</h4>
+                            <ul>
+                                <li><a href="#">Tất Cả</a></li>
+                                <li><a href="#">Công Nghệ (20)</a></li>
+                                <li><a href="#">Điện Thoại (5)</a></li>
+                                <li><a href="#">Laptop (9)</a></li>
+                                <li><a href="#">Phụ Kiện (10)</a></li>
+                            </ul>
+                        </div>
+                        <div class="blog__sidebar__item">
+                            <h4>Tin Tức Gần Đây</h4>
+                            <div class="blog__sidebar__recent">
+                                <a href="#" class="blog__sidebar__recent__item">
+                                    <div class="blog__sidebar__recent__item__pic">
+                                        <img src="img/blog/sidebar/sr-1.jpg" alt="">
+                                    </div>
+                                    <div class="blog__sidebar__recent__item__text">
+                                        <h6>iPhone 15 Pro - Đánh<br /> Giá Chi Tiết</h6>
+                                        <span>01 Tháng 01, 2024</span>
+                                    </div>
+                                </a>
+                                <a href="#" class="blog__sidebar__recent__item">
+                                    <div class="blog__sidebar__recent__item__pic">
+                                        <img src="img/blog/sidebar/sr-2.jpg" alt="">
+                                    </div>
+                                    <div class="blog__sidebar__recent__item__text">
+                                        <h6>Mẹo Chọn Laptop<br /> Phù Hợp</h6>
+                                        <span>01 Tháng 01, 2024</span>
+                                    </div>
+                                </a>
+                                <a href="#" class="blog__sidebar__recent__item">
+                                    <div class="blog__sidebar__recent__item__pic">
+                                        <img src="img/blog/sidebar/sr-3.jpg" alt="">
+                                    </div>
+                                    <div class="blog__sidebar__recent__item__text">
+                                        <h6>Camera Chuyên Nghiệp<br /> Để Bắt Đầu</h6>
+                                        <span>01 Tháng 01, 2024</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="blog__sidebar__item">
+                            <h4>Từ Khóa</h4>
+                            <div class="blog__sidebar__item__tags">
+                                <a href="#">iPhone</a>
+                                <a href="#">Samsung</a>
+                                <a href="#">Laptop</a>
+                                <a href="#">Điện Thoại</a>
+                                <a href="#">Công Nghệ</a>
+                                <a href="#">Phụ Kiện</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-md-7 order-md-1 order-1">
+                    <div class="blog__details__text">
+                        <img src="img/blog/details/details-pic.jpg" alt="">
+                        <p>iOS và Android là hai hệ điều hành điện thoại thông minh hàng đầu trên thế giới. Mỗi nền tảng có những ưu điểm và nhược điểm riêng. Bài viết này sẽ giúp bạn hiểu rõ hơn về sự khác biệt giữa hai nền tảng này để có quyết định lựa chọn đúng đắn nhất.</p>
+                        <h3>iOS - Hệ Điều Hành Của Apple</h3>
+                        <p>iOS được Apple phát triển độc quyền cho các thiết bị iPhone và iPad. Đây là một hệ điều hành khép kín, chỉ chạy trên các thiết bị Apple. iOS nổi tiếng với sự ổn định, bảo mật cao và giao diện người dùng thân thiện. Các ứng dụng trên App Store đều phải trải qua kiểm duyệt chặt chẽ của Apple, đảm bảo chất lượng và an toàn cho người dùng.</p>
+                    </div>
+                    <div class="blog__details__content">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="blog__details__author">
+                                    <div class="blog__details__author__pic">
+                                        <img src="img/blog/details/details-author.jpg" alt="">
+                                    </div>
+                                    <div class="blog__details__author__text">
+                                        <h6>Nguyễn Văn A</h6>
+                                        <span>Quản Trị Viên</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="blog__details__widget">
+                                    <ul>
+                                        <li><span>Danh Mục:</span> Điện Thoại</li>
+                                        <li><span>Từ Khóa:</span> iPhone, Android, Công Nghệ, Điện Thoại</li>
+                                    </ul>
+                                    <div class="blog__details__social">
+                                        <a href="#"><i class="fa fa-facebook"></i></a>
+                                        <a href="#"><i class="fa fa-twitter"></i></a>
+                                        <a href="#"><i class="fa fa-google-plus"></i></a>
+                                        <a href="#"><i class="fa fa-linkedin"></i></a>
+                                        <a href="#"><i class="fa fa-envelope"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Blog Details Section End -->
+    <!-- Related Blog Section Begin -->
+    <section class="related-blog spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-title related-blog-title">
+                        <h2>Bài Viết Liên Quan</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-6">
+                    <div class="blog__item">
+                        <div class="blog__item__pic">
+                            <img src="img/blog/blog-1.jpg" alt="">
+                        </div>
+                        <div class="blog__item__text">
+                            <ul>
+                                <li><i class="fa fa-calendar-o"></i> 01/01/2024</li>
+                                <li><i class="fa fa-comment-o"></i> 5</li>
+                            </ul>
+                            <h5><a href="#">Công Nghệ 5G Là Gì?</a></h5>
+                            <p>Tìm hiểu về công nghệ 5G và những tác động của nó đến cuộc sống hàng ngày</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6">
+                    <div class="blog__item">
+                        <div class="blog__item__pic">
+                            <img src="img/blog/blog-2.jpg" alt="">
+                        </div>
+                        <div class="blog__item__text">
+                            <ul>
+                                <li><i class="fa fa-calendar-o"></i> 01/01/2024</li>
+                                <li><i class="fa fa-comment-o"></i> 5</li>
+                            </ul>
+                            <h5><a href="#">6 Cách Chọn Tai Nghe Tốt</a></h5>
+                            <p>Hướng dẫn chi tiết giúp bạn lựa chọn tai nghe phù hợp với nhu cầu</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-6">
+                    <div class="blog__item">
+                        <div class="blog__item__pic">
+                            <img src="img/blog/blog-3.jpg" alt="">
+                        </div>
+                        <div class="blog__item__text">
+                            <ul>
+                                <li><i class="fa fa-calendar-o"></i> 01/01/2024</li>
+                                <li><i class="fa fa-comment-o"></i> 5</li>
+                            </ul>
+                            <h5><a href="#">Review MacBook Pro M3</a></h5>
+                            <p>Đánh giá chi tiết về hiệu năng, thiết kế và giá trị của MacBook</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Related Blog Section End -->
+    <!-- Footer Section Begin -->
+    <footer class="footer spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="footer__about">
+                        <div class="footer__about__logo">
+                            <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                        </div>
+                        <ul>
+                            <li>Địa chỉ: 123 Đường Công Nghệ, Quận 1, TP.HCM</li>
+                            <li>Điện thoại: +84 123 456 789</li>
+                            <li>Email: hello@congnghe.com</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
+                    <div class="footer__widget">
+                        <h6>Liên Kết Hữu Ích</h6>
+                        <ul>
+                            <li><a href="#">Về Chúng Tôi</a></li>
+                            <li><a href="#">Về Cửa Hàng</a></li>
+                            <li><a href="#">Mua Sắm An Toàn</a></li>
+                            <li><a href="#">Thông Tin Vận Chuyển</a></li>
+                            <li><a href="#">Chính Sách Bảo Mật</a></li>
+                            <li><a href="#">Sơ Đồ Trang Web</a></li>
+                        </ul>
+                        <ul>
+                            <li><a href="#">Chúng Tôi Là Ai</a></li>
+                            <li><a href="#">Dịch Vụ Của Chúng Tôi</a></li>
+                            <li><a href="#">Dự Án</a></li>
+                            <li><a href="#">Liên Hệ</a></li>
+                            <li><a href="#">Đổi Mới</a></li>
+                            <li><a href="#">Đánh Giá</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="footer__widget">
+                        <h6>Đăng Ký Nhận Thông Tin Mới</h6>
+                        <p>Nhận cập nhật email về các sản phẩm và ưu đãi đặc biệt của chúng tôi.</p>
+                        <form action="#">
+                            <input type="text" placeholder="Nhập email của bạn">
+                            <button type="submit" class="site-btn">Đăng Ký</button>
+                        </form>
+                        <div class="footer__widget__social">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="footer__copyright">
+                        <div class="footer__copyright__text">
+                            <p>
+                                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                Bản Quyền &copy;
+                                <script>document.write(new Date().getFullYear());</script> Tất Cả Các Quyền Được Bảo Lưu | Mẫu Này Được Tạo Bởi <i class="fa fa-heart" aria-hidden="true"></i> <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                            </p>
+                        </div>
+                        <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer Section End -->
+    <!-- Js Plugins -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.nice-select.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery.slicknav.js"></script>
+    <script src="js/mixitup.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="/js/categories.js"></script>
+
+</body>
+
+</html>

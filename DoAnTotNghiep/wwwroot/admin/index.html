@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <title>Admin - Song Ngữ</title>
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+                <div class="sidebar-brand-text mx-3">ADMIN SHOP</div>
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item active">
+                <a class="nav-link" href="index.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span class="lang" data-vi="Bảng điều khiển" data-en="Dashboard">Bảng điều khiển</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="tables.html">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span class="lang" data-vi="Danh sách sản phẩm" data-en="Product List">Danh sách sản phẩm</span>
+                </a>
+            </li>
+        </ul>
+
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item d-flex align-items-center mr-3">
+                            <button onclick="changeLang('vi')" class="btn btn-sm btn-primary mr-1">VN 🇻🇳</button>
+                            <button onclick="changeLang('en')" class="btn btn-sm btn-secondary">EN 🇺🇸</button>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container-fluid">
+                    <h1 class="h3 mb-0 text-gray-800 lang" data-vi="Chào mừng quay trở lại" data-en="Welcome Back">Chào mừng quay trở lại</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function changeLang(lang) {
+            const elements = document.querySelectorAll('.lang');
+            elements.forEach(el => {
+                const text = el.getAttribute('data-' + lang);
+                if (text) el.innerText = text;
+            });
+            localStorage.setItem('adminLang', lang);
+        }
+        // Tự động load ngôn ngữ đã chọn
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('adminLang') || 'vi';
+            changeLang(savedLang);
+        });
+    </script>
+</body>
+</html>

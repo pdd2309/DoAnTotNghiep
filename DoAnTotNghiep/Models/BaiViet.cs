@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DoAnTotNghiep.Models;
+
+public partial class BaiViet
+{
+    public int MaBv { get; set; }
+
+    public string? TieuDe { get; set; }
+
+    public string? NoiDung { get; set; }
+
+    public string? HinhAnh { get; set; }
+
+    public DateTime? NgayDang { get; set; }
+
+    public string? TacGia { get; set; }
+}

@@ -1,0 +1,182 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace DoAnTotNghiep.Models;
+
+public partial class CuaHangCongNgheDbContext : DbContext
+{
+    public CuaHangCongNgheDbContext()
+    {
+    }
+
+    public CuaHangCongNgheDbContext(DbContextOptions<CuaHangCongNgheDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<BaiViet> BaiViets { get; set; }
+
+    public virtual DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
+
+    public virtual DbSet<DanhGia> DanhGia { get; set; }
+
+    public virtual DbSet<DanhMuc> DanhMucs { get; set; }
+
+    public virtual DbSet<DonHang> DonHangs { get; set; }
+
+    public virtual DbSet<LienHe> LienHes { get; set; }
+
+    public virtual DbSet<NguoiDung> NguoiDungs { get; set; }
+
+    public virtual DbSet<SanPham> SanPhams { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=CuaHangCongNgheDB;Trusted_Connection=True;TrustServerCertificate=True;");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<BaiViet>(entity =>
+        {
+            entity.HasKey(e => e.MaBv).HasName("PK__BaiViet__27247595B9AFDF46");
+
+            entity.ToTable("BaiViet");
+
+            entity.Property(e => e.MaBv).HasColumnName("MaBV");
+            entity.Property(e => e.HinhAnh).HasMaxLength(500);
+            entity.Property(e => e.NgayDang)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.TacGia).HasMaxLength(100);
+            entity.Property(e => e.TieuDe).HasMaxLength(250);
+        });
+
+        modelBuilder.Entity<ChiTietDonHang>(entity =>
+        {
+            entity.HasKey(e => e.MaChiTiet).HasName("PK__ChiTietD__CDF0A1146EAA57A0");
+
+            entity.ToTable("ChiTietDonHang");
+
+            entity.Property(e => e.DonGiaLucMua).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.MaDonHangNavigation).WithMany(p => p.ChiTietDonHangs)
+                .HasForeignKey(d => d.MaDonHang)
+                .HasConstraintName("FK__ChiTietDo__MaDon__5812160E");
+
+            entity.HasOne(d => d.MaSanPhamNavigation).WithMany(p => p.ChiTietDonHangs)
+                .HasForeignKey(d => d.MaSanPham)
+                .HasConstraintName("FK__ChiTietDo__MaSan__59063A47");
+        });
+
+        modelBuilder.Entity<DanhGia>(entity =>
+        {
+            entity.HasKey(e => e.MaDanhGia).HasName("PK__DanhGia__AA9515BF49A0A7F1");
+
+            entity.Property(e => e.NgayDanhGia)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+
+            entity.HasOne(d => d.MaNguoiDungNavigation).WithMany(p => p.DanhGia)
+                .HasForeignKey(d => d.MaNguoiDung)
+                .HasConstraintName("FK__DanhGia__MaNguoi__08B54D69");
+
+            entity.HasOne(d => d.MaSanPhamNavigation).WithMany(p => p.DanhGia)
+                .HasForeignKey(d => d.MaSanPham)
+                .HasConstraintName("FK__DanhGia__MaSanPh__07C12930");
+        });
+
+        modelBuilder.Entity<DanhMuc>(entity =>
+        {
+            entity.HasKey(e => e.MaDanhMuc).HasName("PK__DanhMuc__B37508871E5588E5");
+
+            entity.ToTable("DanhMuc");
+
+            entity.Property(e => e.TenDanhMuc).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<DonHang>(entity =>
+        {
+            entity.HasKey(e => e.MaDonHang).HasName("PK__DonHang__129584AD29C45CA6");
+
+            entity.ToTable("DonHang");
+
+            entity.Property(e => e.DiaChiGiaoHang).HasMaxLength(255);
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.HoTen).HasMaxLength(250);
+            entity.Property(e => e.NgayDat)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.SoDienThoai)
+                .HasMaxLength(15)
+                .IsUnicode(false);
+            entity.Property(e => e.TongTien).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.TrangThai)
+                .HasMaxLength(50)
+                .HasDefaultValue("Mới đặt");
+
+            entity.HasOne(d => d.MaNguoiDungNavigation).WithMany(p => p.DonHangs)
+                .HasForeignKey(d => d.MaNguoiDung)
+                .HasConstraintName("FK__DonHang__MaNguoi__5535A963");
+        });
+
+        modelBuilder.Entity<LienHe>(entity =>
+        {
+            entity.HasKey(e => e.MaLienHe).HasName("PK__LienHe__0E73388A91E0AD90");
+
+            entity.ToTable("LienHe");
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.HoTen).HasMaxLength(100);
+            entity.Property(e => e.NgayGui)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<NguoiDung>(entity =>
+        {
+            entity.HasKey(e => e.MaNguoiDung).HasName("PK__NguoiDun__C539D762D56C750B");
+
+            entity.ToTable("NguoiDung");
+
+            entity.HasIndex(e => e.TenDangNhap, "UQ__NguoiDun__55F68FC0E5AA564B").IsUnique();
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.HoTen).HasMaxLength(100);
+            entity.Property(e => e.MatKhau)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.TenDangNhap)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.VaiTro)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("KhachHang");
+        });
+
+        modelBuilder.Entity<SanPham>(entity =>
+        {
+            entity.HasKey(e => e.MaSanPham).HasName("PK__SanPham__FAC7442D6E89D5FD");
+
+            entity.ToTable("SanPham");
+
+            entity.Property(e => e.GiaTien).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.HinhAnh).HasMaxLength(500);
+            entity.Property(e => e.TenSanPham).HasMaxLength(200);
+
+            entity.HasOne(d => d.MaDanhMucNavigation).WithMany(p => p.SanPhams)
+                .HasForeignKey(d => d.MaDanhMuc)
+                .HasConstraintName("FK__SanPham__MaDanhM__5070F446");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}

@@ -1,0 +1,31 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DoAnTotNghiep.Models;
+
+public partial class DonHang
+{
+    public int MaDonHang { get; set; }
+
+    public int? MaNguoiDung { get; set; }
+
+    public DateTime? NgayDat { get; set; }
+
+    public decimal? TongTien { get; set; }
+
+    public string? TrangThai { get; set; }
+
+    public string? DiaChiGiaoHang { get; set; }
+
+    public string? HoTen { get; set; }
+
+    public string? SoDienThoai { get; set; }
+
+    public string? Email { get; set; }
+
+    public string? GhiChu { get; set; }
+
+    public virtual ICollection<ChiTietDonHang> ChiTietDonHangs { get; set; } = new List<ChiTietDonHang>();
+
+    public virtual NguoiDung? MaNguoiDungNavigation { get; set; }
+}
