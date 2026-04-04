@@ -1,0 +1,80 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Giỏ Hàng";
+}
+
+<section class="breadcrumb-section set-bg" data-setbg="/img/breadcrumb.jpg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb__text">
+                    <h2>Giỏ Hàng</h2>
+                    <div class="breadcrumb__option">
+                        <a href="/">Trang Chủ</a>
+                        <span>Giỏ Hàng</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="shoping-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="shoping__product">Sản Phẩm</th>
+                                <th>Giá</th>
+                                <th>Số Lượng</th>
+                                <th>Tổng Cộng</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-table-body">
+                            <!-- Dữ liệu giỏ hàng được inject bởi /wwwroot/js/cart.js hoặc /wwwroot/js/fetch-cart.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-12">
+                <div class="shoping__cart__btns">
+                    <a href="/" class="primary-btn cart-btn">TIẾP TỤC MUA SẮM</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="shoping__continue">
+                    <div class="shoping__discount">
+                        <h5>Mã Giảm Giá</h5>
+                        <form id="coupon-form" onsubmit="return false;">
+                            <input type="text" id="coupon-code" placeholder="Nhập mã giảm giá">
+                            <button id="apply-coupon" type="button" class="site-btn">ÁP DỤNG</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="shoping__checkout">
+                    <h5>Tổng Giỏ Hàng</h5>
+                    <ul>
+                        <li>Tạm Tính <span id="cart-subtotal">0đ</span></li>
+                        <li>Tổng Cộng <span id="cart-total" style="color: #dd2222; font-weight: bold; font-size: 22px;">0đ</span></li>
+                    </ul>
+                    <a href="/Home/Checkout" class="primary-btn">TIẾN HÀNH THANH TOÁN</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <!-- Các script dùng đường dẫn root-relative để tải từ wwwroot/js -->
+    <script src="/js/cart.js"></script>
+    <script src="/js/fetch-cart.js"></script>
+    <script src="/js/all-scripts.js"></script>
+}

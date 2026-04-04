@@ -1,0 +1,41 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Chi Tiết Sản Phẩm";
+    // ViewBag.MaSanPham được set trong HomeController
+}
+
+<section class="breadcrumb-section set-bg" data-setbg="/img/breadcrumb.jpg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="breadcrumb__text">
+                    <h2 id="detail-name">Chi tiết sản phẩm</h2>
+                    <div class="breadcrumb__option">
+                        <a href="/">Trang Chủ</a>
+                        <a href="/Home/Shop">Cửa Hàng</a>
+                        <span id="breadcrumb-name">Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="product-details spad">
+    <div class="container">
+        <div class="row" id="product-detail-content">
+            <!-- Nội dung sẽ được JS đổ vào -->
+            <div class="col-12 text-center"><h3>Đang tải thông tin sản phẩm...</h3></div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // truyền productId từ server xuống JS (HomeController: ViewBag.MaSanPham = id)
+        const productId = '@ViewBag.MaSanPham';
+    </script>
+
+    <!-- cart.js đã được include tại _Layout nên không cần load lại ở đây -->
+    <script src="/js/fetch-detail.js"></script>
+}

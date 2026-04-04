@@ -1,64 +1,76 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
-    // 1. Kiểm tra xem có phải trang chi tiết không (tránh lỗi Illegal return)
-    const detailName = document.getElementById('detail-name');
-    if (!detailName) return;
+    // element container
+    const container = document.getElementById('product-detail-content');
+    if (!container) return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-
-    if (!productId) {
-        console.error("Lỗi: Không tìm thấy ID sản phẩm trên link!");
+    // productId được set trong Details.cshtml via ViewBag
+    if (typeof productId === 'undefined' || !productId) {
+        container.innerHTML = '<div class="col-12 text-center text-danger">Không tìm thấy ID sản phẩm.</div>';
+        console.error('Không tìm thấy productId (ViewBag.MaSanPham).');
         return;
     }
 
-    // 2. Gọi API lấy dữ liệu
     fetch(`/api/SanPhamApi/${productId}`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('API trả về lỗi: ' + res.status);
+            return res.json();
+        })
         .then(result => {
-            // Lấy dữ liệu sản phẩm từ result
-            const sp = result.value || result.data || result;
-
-            if (!sp || (!sp.tenSanPham && !sp.TenSanPham)) {
-                console.error("Lỗi: API không có dữ liệu sản phẩm!", sp);
+            // hỗ trợ nhiều shape: { data: {...} } hoặc trực tiếp object
+            const sp = result.data || result || result.value;
+            if (!sp) {
+                container.innerHTML = '<div class="col-12 text-center text-danger">Không có dữ liệu sản phẩm.</div>';
+                console.error('API không trả dữ liệu sản phẩm', result);
                 return;
             }
 
-            // Đổ dữ liệu ra HTML
-            if (document.getElementById('detail-name'))
-                document.getElementById('detail-name').innerText = sp.tenSanPham || sp.TenSanPham;
+            const id = sp.maSanPham || sp.MaSanPham || productId;
+            const name = sp.tenSanPham || sp.TenSanPham || 'Sản phẩm';
+            const desc = sp.moTa || sp.MoTa || '';
+            const priceVal = sp.giaTien || sp.GiaTien || 0;
+            const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(priceVal);
 
-            if (document.getElementById('detail-price')) {
-                const gia = sp.giaTien || sp.GiaTien || 0;
-                document.getElementById('detail-price').innerText = new Intl.NumberFormat('vi-VN', {
-                    style: 'currency', currency: 'VND'
-                }).format(gia);
-            }
+            // normalize image path
+            const rawImg = sp.hinhAnh || sp.HinhAnh || '/img/product/details/product-details-1.jpg';
+            const img = (/^https?:\/\//i.test(rawImg) || rawImg.startsWith('/')) ? rawImg : '/' + rawImg;
 
-            if (document.getElementById('detail-desc'))
-                document.getElementById('detail-desc').innerText = sp.moTa || sp.MoTa || "Sản phẩm chính hãng.";
+            // build HTML (có thể tuỳ chỉnh structure cho giống template)
+            container.innerHTML = `
+                <div class="col-lg-6 col-md-6">
+                    <div class="product__details__pic">
+                        <img id="detail-img" src="${img}" alt="${name}" style="width:100%; max-height:500px; object-fit:cover;" />
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="product__details__text">
+                        <h3 id="detail-name">${name}</h3>
+                        <div class="product__details__price"><span id="detail-price">${price}</span></div>
+                        <p id="detail-desc">${desc}</p>
+                        <button id="add-to-cart" class="primary-btn">Thêm vào giỏ</button>
+                    </div>
+                </div>
+            `;
 
-            const imgTag = document.getElementById('detail-img');
-            if (imgTag) {
-                imgTag.src = (sp.hinhAnh || sp.HinhAnh) || 'img/product/details/product-details-1.jpg';
-            }
-
-            // 3. LOGIC NÚT THÊM VÀO GIỎ (Phải nằm trong .then này để lấy được biến 'sp')
+            // add-to-cart handler (sử dụng hàm addToCart nếu đã có)
             const addBtn = document.getElementById('add-to-cart');
             if (addBtn) {
                 addBtn.onclick = function () {
-                    // Gọi hàm addToCart từ file cart.js
                     if (typeof addToCart === 'function') {
                         addToCart({
-                            id: sp.maSanPham || sp.MaSanPham,
-                            name: sp.tenSanPham || sp.TenSanPham,
-                            price: sp.giaTien || sp.GiaTien,
-                            image: sp.hinhAnh || sp.HinhAnh
+                            id: id,
+                            name: name,
+                            price: priceVal,
+                            image: img
                         });
                     } else {
-                        console.error("Lỗi: Không tìm thấy hàm addToCart. Hãy kiểm tra lại file cart.js!");
+                        console.warn('Hàm addToCart chưa được định nghĩa.');
+                        alert('Chức năng giỏ hàng hiện chưa khả dụng.');
                     }
                 };
             }
         })
-        .catch(err => console.error("Lỗi kết nối API:", err));
+        .catch(err => {
+            console.error('Lỗi khi gọi API chi tiết sản phẩm:', err);
+            container.innerHTML = '<div class="col-12 text-center text-danger">Không thể tải thông tin sản phẩm. Vui lòng thử lại.</div>';
+        });
 });

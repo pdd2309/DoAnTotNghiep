@@ -37,7 +37,7 @@
         <div class="humberger__menu__cart">
             <ul>
                 <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
             </ul>
         </div>
         <div class="humberger__menu__widget">
@@ -62,8 +62,8 @@
                     <div class="col-lg-6 col-md-6">
                         <div class="header__top__left">
                             <ul>
-                                <li><i class="fa fa-envelope"></i> hello@congnghe.com</li>
-                                <li>Giao hàng nhanh toàn quốc</li>
+                                <li><i class="fa fa-envelope"></i> support@congnghe.vn</li>
+                                <li>Miễn phí giao hàng cho đơn trên 1.000.000đ</li>
                             </ul>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                     <div class="header__cart">
                         <ul>
                             <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                            <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
                         </ul>
                     </div>
                 </div>
@@ -177,6 +177,10 @@
     <script src="/js/jquery.slicknav.js"></script>
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
+
+    <!-- include cart.js globally so addToCart & updateCartCount available on every page -->
+    <script src="/js/cart.js"></script>
+
     <script src="/js/main.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
