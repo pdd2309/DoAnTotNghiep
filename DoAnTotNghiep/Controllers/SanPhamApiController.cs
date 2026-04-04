@@ -9,10 +9,10 @@ namespace DoAnTotNghiep.Controllers
     [ApiController]
     public class SanPhamApiController : ControllerBase
     {
-        private readonly CuaHangCongNgheDbContext _context;
+        private readonly CuaHangCongNgheDBContext _context;
         private readonly ILogger<SanPhamApiController> _logger;
 
-        public SanPhamApiController(CuaHangCongNgheDbContext context, ILogger<SanPhamApiController> logger)
+        public SanPhamApiController(CuaHangCongNgheDBContext context, ILogger<SanPhamApiController> logger)
         {
             _context = context;
             _logger = logger;

@@ -6,9 +6,9 @@ namespace DoAnTotNghiep.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly CuaHangCongNgheDbContext _db;
+        private readonly CuaHangCongNgheDBContext _db;
 
-        public AccountController(CuaHangCongNgheDbContext db)
+        public AccountController(CuaHangCongNgheDBContext db)
         {
             _db = db;
         }

@@ -6,13 +6,14 @@ const scripts = [
     "js/fetch-cart.js"      // File hiện bảng giỏ hàng
 ];
 
-// Hàm tự động chèn các thẻ <script> vào trang web
+// Hàm tự động chèn các thẻ <script> vào trang web (chuyển sang đường dẫn root-relative)
 scripts.forEach(src => {
     const script = document.createElement('script');
-    script.src = src;
+    script.src = src.startsWith('/') ? src : ('/' + src); // đảm bảo root-relative
     script.async = false; // Đảm bảo các file chạy đúng thứ tự
     document.head.appendChild(script);
 });
+
 // Đoạn này dùng để hiện list đồ ở trang Checkout
 if (document.getElementById('checkout-list')) {
     let cart = JSON.parse(localStorage.getItem('shoppingCart')) || [];
@@ -23,5 +24,8 @@ if (document.getElementById('checkout-list')) {
         html += `<li>${item.name} x ${item.quantity} <span>${new Intl.NumberFormat('vi-VN').format(item.price * item.quantity)}</span></li>`;
     });
     document.getElementById('checkout-list').innerHTML = html;
-    document.getElementById('checkout-total').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
+    const checkoutTotalEl = document.getElementById('checkout-total');
+    if (checkoutTotalEl) {
+        checkoutTotalEl.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
+    }
 }

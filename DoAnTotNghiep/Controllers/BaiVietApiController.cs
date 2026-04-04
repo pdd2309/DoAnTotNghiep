@@ -8,9 +8,9 @@ namespace DoAnTotNghiep.Controllers;
 [Route("api/[controller]")]
 public class BaiVietApiController : ControllerBase
 {
-    private readonly CuaHangCongNgheDbContext _context;
+    private readonly CuaHangCongNgheDBContext _context;
 
-    public BaiVietApiController(CuaHangCongNgheDbContext context)
+    public BaiVietApiController(CuaHangCongNgheDBContext context)
     {
         _context = context;
     }

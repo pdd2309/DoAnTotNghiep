@@ -17,9 +17,9 @@ public interface ISanPhamService
 
 public class SanPhamService : ISanPhamService
 {
-    private readonly CuaHangCongNgheDbContext _context;
+    private readonly CuaHangCongNgheDBContext _context;
 
-    public SanPhamService(CuaHangCongNgheDbContext context)
+    public SanPhamService(CuaHangCongNgheDBContext context)
     {
         _context = context;
     }

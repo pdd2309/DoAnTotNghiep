@@ -11,9 +11,9 @@ public interface IDanhMucService
 
 public class DanhMucService : IDanhMucService
 {
-    private readonly CuaHangCongNgheDbContext _context;
+    private readonly CuaHangCongNgheDBContext _context;
 
-    public DanhMucService(CuaHangCongNgheDbContext context)
+    public DanhMucService(CuaHangCongNgheDBContext context)
     {
         _context = context;
     }

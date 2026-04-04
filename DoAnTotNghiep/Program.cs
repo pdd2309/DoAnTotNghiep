@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // --- 1. PHẦN ĐĂNG KÝ SERVICES (Dưới builder, TRÊN builder.Build) ---
 
 // Đăng ký DbContext
-builder.Services.AddDbContext<CuaHangCongNgheDbContext>(options =>
+builder.Services.AddDbContext<CuaHangCongNgheDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Đăng ký Services của Đông

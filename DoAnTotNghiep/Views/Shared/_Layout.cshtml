@@ -178,9 +178,13 @@
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
 
-    <!-- include cart.js globally so addToCart & updateCartCount available on every page -->
-    <script src="/js/cart.js"></script>
+    <!-- expose username cho JS (thêm trước các script) -->
+    <script>
+        window.appUserName = '@(HttpContextAccessor.HttpContext?.Session.GetString("UserName") ?? "")';
+    </script>
 
+    <!-- include cart.js globally -->
+    <script src="/js/cart.js"></script>
     <script src="/js/main.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

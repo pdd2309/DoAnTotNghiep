@@ -35,7 +35,7 @@
                             </tr>
                         </thead>
                         <tbody id="cart-table-body">
-                            <!-- Dữ liệu giỏ hàng được inject bởi /wwwroot/js/cart.js hoặc /wwwroot/js/fetch-cart.js -->
+                            <!-- Dữ liệu giỏ hàng được render bởi /wwwroot/js/fetch-cart.js -->
                         </tbody>
                     </table>
                 </div>
@@ -73,8 +73,6 @@
 </section>
 
 @section Scripts {
-    <!-- Các script dùng đường dẫn root-relative để tải từ wwwroot/js -->
-    <script src="/js/cart.js"></script>
+    <!-- Load chỉ fetch-cart.js (đã bao gồm tất cả logic) -->
     <script src="/js/fetch-cart.js"></script>
-    <script src="/js/all-scripts.js"></script>
 }

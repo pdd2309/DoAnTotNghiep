@@ -8,9 +8,9 @@ namespace DoAnTotNghiep.Controllers;
 [Route("api/[controller]")]
 public class DanhMucController : ControllerBase
 {
-    private readonly CuaHangCongNgheDbContext _context;
+    private readonly CuaHangCongNgheDBContext _context;
 
-    public DanhMucController(CuaHangCongNgheDbContext context)
+    public DanhMucController(CuaHangCongNgheDBContext context)
     {
         _context = context;
     }
