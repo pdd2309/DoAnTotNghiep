@@ -42,15 +42,24 @@
         </div>
         <div class="humberger__menu__widget">
             <div class="header__top__right__auth">
-                <a href="/Account/Login"><i class="fa fa-user"></i> Đăng Nhập</a>
+                @{
+                    var userNameMob = HttpContextAccessor.HttpContext.Session.GetString("UserName");
+                }
+                @if (userNameMob != null)
+                {
+                    <a href="#"><i class="fa fa-user"></i> Chào, @userNameMob</a>
+                }
+                else
+                {
+                    <a href="/Account/Login"><i class="fa fa-user"></i> Đăng Nhập</a>
+                }
             </div>
         </div>
         <nav class="humberger__menu__nav mobile-menu">
             <ul>
                 <li><a href="/">Trang Chủ</a></li>
                 <li><a href="/Home/Shop">Cửa Hàng</a></li>
-                <li><a href="/Home/Blog">Blog</a></li>
-                <li><a href="/Home/Contact">Liên Hệ</a></li>
+                <li><a href="/Account/LichSuMuaHang">Lịch sử mua hàng</a></li>
             </ul>
         </nav>
     </div>
@@ -74,14 +83,23 @@
                                 <a href="#"><i class="fa fa-twitter"></i></a>
                                 <a href="#"><i class="fa fa-linkedin"></i></a>
                             </div>
+
+                            @* --- KHU VỰC FIX LỖI: HIỂN THỊ TÊN ĐĂNG NHẬP --- *@
                             <div class="header__top__right__auth">
                                 @{
-                                    var userName = HttpContextAccessor.HttpContext.Session.GetString("UserName");
+                                    var userName = User?.Identity?.IsAuthenticated == true
+                                        ? User.Identity!.Name
+                                        : HttpContextAccessor.HttpContext?.Session.GetString("UserName");
                                 }
                                 @if (userName != null)
                                 {
-                                    <a href="#"><i class="fa fa-user"></i> Chào, @userName</a>
-                                    <a href="/Account/Logout" style="margin-left:10px; color:red">| Thoát</a>
+                                    <div class="header__top__right__language">
+                                        <a href="#"><i class="fa fa-user"></i> Chào, @userName <i class="fa fa-angle-down"></i></a>
+                                        <ul>
+                                            <li><a href="/Account/LichSuMuaHang">Đơn hàng</a></li>
+                                            <li><a href="/Account/Logout" style="color:red !important">Thoát</a></li>
+                                        </ul>
+                                    </div>
                                 }
                                 else
                                 {
@@ -106,14 +124,13 @@
                             <li class="active"><a href="/">Trang Chủ</a></li>
                             <li><a href="/Home/Shop">Cửa Hàng</a></li>
                             <li>
-                                <a href="#">Trang</a>
+                                <a href="#">Trang <i class="fa fa-angle-down"></i></a>
                                 <ul class="header__menu__dropdown">
                                     <li><a href="/Home/Cart">Giỏ Hàng</a></li>
                                     <li><a href="/Home/Checkout">Thanh Toán</a></li>
+                                    <li><a href="/Account/LichSuMuaHang">Lịch sử đơn hàng</a></li>
                                 </ul>
                             </li>
-                            <li><a href="/Home/Blog">Blog</a></li>
-                            <li><a href="/Home/Contact">Liên Hệ</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -152,8 +169,7 @@
                         <h6>Liên kết nhanh</h6>
                         <ul>
                             <li><a href="#">Về chúng tôi</a></li>
-                            <li><a href="#">Chính sách bảo mật</a></li>
-                            <li><a href="/Home/Contact">Liên hệ</a></li>
+                            <li><a href="/Account/LichSuMuaHang">Lịch sử mua hàng</a></li>
                         </ul>
                     </div>
                 </div>
@@ -178,12 +194,10 @@
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
 
-    <!-- expose username cho JS (thêm trước các script) -->
     <script>
         window.appUserName = '@(HttpContextAccessor.HttpContext?.Session.GetString("UserName") ?? "")';
     </script>
 
-    <!-- include cart.js globally -->
     <script src="/js/cart.js"></script>
     <script src="/js/main.js"></script>
 

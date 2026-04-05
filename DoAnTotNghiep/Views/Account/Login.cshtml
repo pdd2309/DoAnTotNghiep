@@ -1,30 +1,61 @@
 ﻿@{
-    Layout = "_Layout"; // Để nó tự đắp Header/Footer vào
+    Layout = "_Layout";
+    ViewData["Title"] = "Đăng Nhập";
 }
 
-<div class="container" style="padding: 100px 0;">
-    <div class="row justify-content-center">
-        <div class="col-lg-4 text-center">
-            <div class="section-title">
-                <h2>Đăng Nhập</h2>
+<section class="checkout spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-9">
+                <div class="checkout__form" style="background-color: #d9edf7; padding: 40px; border-radius: 12px; box-shadow: 0px 8px 25px rgba(0,0,0,0.1);">
+                    <div class="section-title text-center" style="margin-bottom: 30px;">
+                        <h2 style="font-weight: 700; color: #333;">Đăng Nhập</h2>
+                    </div>
+
+                    <form action="/Account/Login" method="post">
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">Tên đăng nhập<span>*</span></p>
+                            <input type="text" name="username" placeholder="Nhập tên tài khoản" required
+                                   style="background-color: #fff; border: 1px solid #ccc; border-radius: 6px; padding-left: 15px; color: #333;">
+                        </div>
+
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">Mật khẩu<span>*</span></p>
+                            <input type="password" name="password" placeholder="Nhập mật khẩu" required
+                                   style="background-color: #fff; border: 1px solid #ccc; border-radius: 6px; padding-left: 15px; color: #333;">
+                        </div>
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger text-center" style="font-size: 14px; padding: 10px; border-radius: 6px;">
+                                @ViewBag.Error
+                            </div>
+                        }
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="site-btn" style="border-radius: 6px; padding: 12px 40px; font-weight: bold; letter-spacing: 1px;">ĐĂNG NHẬP</button>
+                        </div>
+                        <div class="text-center mt-4 mb-4" style="position: relative;">
+                            <hr style="border-top: 1px solid #ccc;">
+                            <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background-color: #d9edf7; padding: 0 10px; color: #666; font-size: 14px;">Hoặc đăng nhập bằng</span>
+                        </div>
+
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <a href="/Account/ExternalLogin?provider=Google" class="site-btn" style="background-color: #dd4b39; width: 100%; border-radius: 6px; padding: 10px; font-size: 14px; border: none;">
+                                    <i class="fa fa-google" style="margin-right: 5px;"></i> Google
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/Account/ExternalLogin?provider=Facebook" class="site-btn" style="background-color: #3b5998; width: 100%; border-radius: 6px; padding: 10px; font-size: 14px; border: none;">
+                                    <i class="fa fa-facebook" style="margin-right: 5px;"></i> Facebook
+                                </a>
+                            </div>
+                        </div>
+                        
+                    </form>
+                </div>
             </div>
-
-            @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger">@ViewBag.Error</div>
-            }
-
-            <form action="/Account/Login" method="post">
-                <div class="checkout__input">
-                    <p>Tên đăng nhập<span>*</span></p>
-                    <input type="text" name="username" style="width: 100%; height: 45px; border: 1px solid #ebebeb; padding-left: 20px; margin-bottom: 20px;" required>
-                </div>
-                <div class="checkout__input">
-                    <p>Mật khẩu<span>*</span></p>
-                    <input type="password" name="password" style="width: 100%; height: 45px; border: 1px solid #ebebeb; padding-left: 20px; margin-bottom: 20px;" required>
-                </div>
-                <button type="submit" class="site-btn" style="width: 100%;">VÀO CỬA HÀNG</button>
-            </form>
         </div>
     </div>
-</div>
+</section>

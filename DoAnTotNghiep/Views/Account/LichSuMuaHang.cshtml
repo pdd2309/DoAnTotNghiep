@@ -1,0 +1,46 @@
+﻿@model IEnumerable<DoAnTotNghiep.Models.DonHang>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lịch sử mua hàng";
+}
+
+<section class="breadcrumb-section" style="background-color: #7fad39; padding: 20px 0;">
+    <div class="container text-center">
+        <h2 style="color: white;">Lịch sử mua hàng</h2>
+    </div>
+</section>
+
+<section class="shoping-cart spad">
+    <div class="container">
+        <div class="shoping__cart__table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>#@item.MaDonHang</td>
+                                <td>@item.NgayDat?.ToString("dd/MM/yyyy")</td>
+                                <td>@item.TongTien?.ToString("#,##0")₫</td>
+                                <td><span class="badge badge-success">@item.TrangThai</span></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="text-center">Chưa có đơn hàng nào.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

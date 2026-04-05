@@ -25,6 +25,18 @@ namespace DoAnTotNghiep.Controllers
 
         public IActionResult Checkout()
         {
+            // Lấy tên và UserId từ Session
+            var userName = HttpContext.Session.GetString("UserName");
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            // Nếu chưa đăng nhập, bắt quay xe về trang Login
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Gửi tên sang View để hiện thị
+            ViewBag.CurrentUserName = userName;
             return View();
         }
     }

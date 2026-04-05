@@ -25,7 +25,7 @@ function addToCart(product) {
         })
         .then(() => {
             updateCartCount();
-            alert(`Đã thêm ${product.name} vào giỏ (lưu trên server).`);
+            alert(`Đã thêm ${product.name} vào giỏ.`);
         })
         .catch(() => {
             clientAddToCart(product);
@@ -33,7 +33,7 @@ function addToCart(product) {
         });
     } else {
         clientAddToCart(product);
-        alert(`Đã thêm ${product.name} vào giỏ (lưu tạm trên trình duyệt).`);
+        alert(`Đã thêm ${product.name} vào giỏ.`);
     }
 }
 
@@ -68,7 +68,7 @@ function mergeLocalToServer() {
             // xóa localStorage sau khi merge thành công
             localStorage.removeItem('shoppingCart');
             updateCartCount();
-            console.log('Merge local cart -> server thành công.');
+           
         })
         .catch(err => {
             console.warn('Không merge được local cart:', err);
