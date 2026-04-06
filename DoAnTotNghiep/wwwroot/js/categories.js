@@ -1,68 +1,71 @@
-﻿/** * Lấy danh mục từ API và hiển thị động 
- */
-async function loadCategories() {
+﻿async function loadCategories() {
     try {
-        // KIỂM TRA: Nếu API của ông là DanhMucController thì link thường là /api/DanhMuc
-        // Tui để /api/DanhMuc cho khớp với file C# ông gửi nhé
         const response = await fetch('/api/DanhMuc');
-
-        if (!response.ok) {
-            throw new Error('Lỗi khi tải danh mục từ API');
-        }
-
+        if (!response.ok) throw new Error('Lỗi API');
         const categories = await response.json();
 
-        // Render cho hero section (Thanh menu dọc ở Trang chủ)
+        // 1. Đổ dữ liệu vào thanh menu dọc (Hero)
         renderHeroCategories(categories);
 
-        // Render cho sidebar (Cột bên trái ở trang Shop)
-        renderSidebarCategories(categories);
+        // 2. Đổ dữ liệu vào Slider hình động (Khúc ông vừa hỏi)
+        renderSliderCategories(categories);
 
     } catch (error) {
-        console.error('Lỗi tải danh mục:', error);
+        console.error('Lỗi:', error);
     }
 }
 
-/** * Render danh mục trong hero section (Index)
- */
+function renderSliderCategories(categories) {
+    const slider = document.getElementById('category-slider-list');
+    if (!slider) return;
+
+    // Xóa slider cũ nếu có để tránh trùng lặp
+    $(slider).owlCarousel('destroy');
+
+    slider.innerHTML = categories.map(cat => {
+        const id = cat.maDanhMuc || cat.MaDanhMuc;
+        const name = cat.tenDanhMuc || cat.TenDanhMuc;
+
+        // Tạo hình ảnh mặc định theo tên hoặc ID nếu DB ông chưa có cột hình cho danh mục
+        // Template Ogani dùng ảnh 270x270 cho chỗ này
+        let img = `/img/categories/cat-${id % 5 + 1}.jpg`;
+
+        return `
+            <div class="col-lg-3">
+                <div class="categories__item set-bg" data-setbg="${img}" style="background-image: url('${img}');">
+                    <h5><a href="/Home/Shop?categoryId=${id}">${name}</a></h5>
+                </div>
+            </div>`;
+    }).join('');
+
+    // --- KÍCH HOẠT OWL CAROUSEL ---
+    $(slider).owlCarousel({
+        loop: true,
+        margin: 0,
+        items: 4,
+        dots: false,
+        nav: true,
+        navText: ["<span class='fa fa-angle-left'><span/>", "<span class='fa fa-angle-right'><span/>"],
+        smartSpeed: 1200,
+        autoHeight: false,
+        autoplay: true,
+        responsive: {
+            0: { items: 1 },
+            480: { items: 2 },
+            768: { items: 3 },
+            992: { items: 4 }
+        }
+    });
+}
+
 function renderHeroCategories(categories) {
-    // Ưu tiên tìm theo ID đã đặt trong Index.cshtml
-    const categoryList = document.getElementById('category-list-index') || document.querySelector('.hero__categories ul');
-
-    if (!categoryList) return;
-
-    categoryList.innerHTML = categories
-        .map(cat => {
-            // Check cả hoa thường để tránh lỗi undefined
-            const id = cat.maDanhMuc || cat.MaDanhMuc;
-            const name = cat.tenDanhMuc || cat.TenDanhMuc;
-
-            if (!id || !name) return ''; // Bỏ qua nếu dữ liệu lỗi
-            return `<li><a href="/Home/Shop?categoryId=${id}">${name}</a></li>`;
-        })
-        .join('');
+    const list = document.getElementById('category-list-index');
+    if (!list) return;
+    list.innerHTML = categories.map(cat => {
+        const id = cat.maDanhMuc || cat.MaDanhMuc;
+        const name = cat.tenDanhMuc || cat.TenDanhMuc;
+        return `<li><a href="/Home/Shop?categoryId=${id}">${name}</a></li>`;
+    }).join('');
 }
 
-/** * Render danh mục trong sidebar (Shop)
- */
-function renderSidebarCategories(categories) {
-    const sidebarUl = document.getElementById('category-list-shop');
-
-    if (!sidebarUl) return;
-
-    const html = categories
-        .map(cat => {
-            const id = cat.maDanhMuc || cat.MaDanhMuc;
-            const name = cat.tenDanhMuc || cat.TenDanhMuc;
-
-            if (!id || !name) return '';
-            return `<li><a href="/Home/Shop?categoryId=${id}">${name}</a></li>`;
-        })
-        .join('');
-
-    // Thêm nút "Tất cả" lên đầu để khách dễ quay lại xem toàn bộ máy
-    sidebarUl.innerHTML = `<li><a href="/Home/Shop">Tất cả sản phẩm</a></li>` + html;
-}
-
-// Gọi hàm ngay khi trang web tải xong
 document.addEventListener('DOMContentLoaded', loadCategories);

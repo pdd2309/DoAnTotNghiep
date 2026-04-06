@@ -20,6 +20,7 @@
                         <th>Ngày đặt</th>
                         <th>Tổng tiền</th>
                         <th>Trạng thái</th>
+                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,15 +33,103 @@
                                 <td>@item.NgayDat?.ToString("dd/MM/yyyy")</td>
                                 <td>@item.TongTien?.ToString("#,##0")₫</td>
                                 <td><span class="badge badge-success">@item.TrangThai</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="viewOrderDetails(@item.MaDonHang)">
+                                        <i class="fa fa-eye"></i> Xem món
+                                    </button>
+
+                                    @if (item.TrangThai != "Đã giao hàng" && item.TrangThai != "Đã hủy")
+                                    {
+                                        <button class="btn btn-sm btn-primary" onclick="confirmReceived(@item.MaDonHang)" style="background-color: #7fad39; border: none;">
+                                            Nhận hàng
+                                        </button>
+                                    }
+                                </td>
                             </tr>
                         }
                     }
                     else
                     {
-                        <tr><td colspan="4" class="text-center">Chưa có đơn hàng nào.</td></tr>
+                        <tr><td colspan="5" class="text-center">Chưa có đơn hàng nào.</td></tr>
                     }
                 </tbody>
             </table>
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="orderDetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết đơn hàng <span id="modalOrderId" class="text-primary"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Hình</th>
+                            <th>Tên sản phẩm</th>
+                            <th>SL</th>
+                            <th>Giá mua</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderDetailContent"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 1. Hàm xem chi tiết món hàng trong đơn
+        async function viewOrderDetails(orderId) {
+            document.getElementById('modalOrderId').innerText = "#" + orderId;
+            const content = document.getElementById('orderDetailContent');
+            content.innerHTML = '<tr><td colspan="5" class="text-center">Đang tải...</td></tr>';
+
+            $('#orderDetailModal').modal('show');
+
+            try {
+                const res = await fetch(`/api/OrderApi/GetDetails/${orderId}`);
+                const data = await res.json();
+
+                let html = '';
+                data.forEach(item => {
+                    const img = item.hinhAnh.startsWith('/') ? item.hinhAnh : '/' + item.hinhAnh;
+                    html += `
+                        <tr>
+                            <td><img src="${img}" style="width:50px; height:50px; object-fit:cover;"></td>
+                            <td>${item.tenSanPham}</td>
+                            <td>${item.soLuong}</td>
+                            <td>${item.giaLucMua.toLocaleString()}₫</td>
+                            <td>${item.thanhTien.toLocaleString()}₫</td>
+                        </tr>`;
+                });
+                content.innerHTML = html;
+            } catch (e) {
+                content.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Lỗi tải dữ liệu</td></tr>';
+            }
+        }
+
+        // 2. Hàm xác nhận đã nhận hàng
+        async function confirmReceived(orderId) {
+            if (!confirm("Ông chắc chắn đã nhận được hàng đúng không?")) return;
+            try {
+                const response = await fetch(`/api/OrderApi/ConfirmReceived/${orderId}`, { method: 'PUT' });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert(result.message || "Lỗi rồi!");
+                }
+            } catch (error) { alert("Không kết nối được server."); }
+        }
+    </script>
+}
