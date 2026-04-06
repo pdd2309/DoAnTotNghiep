@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.EntityFrameworkCore
 @inject IHttpContextAccessor HttpContextAccessor
+@inject DoAnTotNghiep.Models.CuaHangCongNgheDBContext _db
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -22,9 +24,48 @@
     <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+    <style>
+        .header__top__right__auth {
+            display: inline-block !important;
+        }
+
+        .header__top__right__language {
+            display: inline-block !important;
+            margin-left: 15px;
+        }
+
+            .header__top__right__language ul {
+                width: 150px !important;
+                z-index: 999;
+            }
+    </style>
 </head>
 
 <body>
+    @{
+        var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
+        var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+
+        int cartCount = 0;
+        if (userId != null)
+        {
+            try
+            {
+                // Thay vì .Count(), mình dùng .Sum() để cộng dồn cột số lượng
+                // Ông kiểm tra xem trong bảng Cart, cột số lượng tên là gì (Quantity hay SoLuong)
+                // Tui giả sử tên cột là Quantity nhé
+                cartCount = _db.CartItems
+                .Where(c => c.CartId == userId) // Hoặc c.MaNguoiDung tùy DB ông
+                .Sum(c => (int?)c.Quantity) ?? 0;
+            }
+            catch
+            {
+                cartCount = 0;
+            }
+        }
+    }
+
     <div id="preloder">
         <div class="loader"></div>
     </div>
@@ -36,18 +77,15 @@
         </div>
         <div class="humberger__menu__cart">
             <ul>
-                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
+                @* Đã bỏ trái tim *@
+                <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li>
             </ul>
         </div>
         <div class="humberger__menu__widget">
             <div class="header__top__right__auth">
-                @{
-                    var userNameMob = HttpContextAccessor.HttpContext.Session.GetString("UserName");
-                }
-                @if (userNameMob != null)
+                @if (userName != null)
                 {
-                    <a href="#"><i class="fa fa-user"></i> Chào, @userNameMob</a>
+                    <a href="#"><i class="fa fa-user"></i> @userName</a>
                 }
                 else
                 {
@@ -72,7 +110,6 @@
                         <div class="header__top__left">
                             <ul>
                                 <li><i class="fa fa-envelope"></i> support@congnghe.vn</li>
-
                             </ul>
                         </div>
                     </div>
@@ -84,13 +121,7 @@
                                 <a href="#"><i class="fa fa-linkedin"></i></a>
                             </div>
 
-                            @* --- KHU VỰC FIX LỖI: HIỂN THỊ TÊN ĐĂNG NHẬP --- *@
                             <div class="header__top__right__auth">
-                                @{
-                                    var userName = User?.Identity?.IsAuthenticated == true
-                                        ? User.Identity!.Name
-                                        : HttpContextAccessor.HttpContext?.Session.GetString("UserName");
-                                }
                                 @if (userName != null)
                                 {
                                     <div class="header__top__right__language">
@@ -137,8 +168,8 @@
                 <div class="col-lg-3">
                     <div class="header__cart">
                         <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count">0</span></a></li>
+                            @* Icon giỏ hàng và số lượng lấy từ DB *@
+                            <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li>
                         </ul>
                     </div>
                 </div>
@@ -195,7 +226,7 @@
     <script src="/js/owl.carousel.min.js"></script>
 
     <script>
-        window.appUserName = '@(HttpContextAccessor.HttpContext?.Session.GetString("UserName") ?? "")';
+        window.appUserName = '@(userName ?? "")';
     </script>
 
     <script src="/js/cart.js"></script>

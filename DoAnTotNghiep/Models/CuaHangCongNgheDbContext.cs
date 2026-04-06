@@ -21,7 +21,7 @@ public partial class CuaHangCongNgheDBContext : DbContext
 
     public virtual DbSet<ChiTietDonHang> ChiTietDonHangs { get; set; }
 
-    public virtual DbSet<DanhGium> DanhGia { get; set; }
+    public virtual DbSet<DanhGia> DanhGias { get; set; }
 
     public virtual DbSet<DanhMuc> DanhMucs { get; set; }
 
@@ -95,9 +95,10 @@ public partial class CuaHangCongNgheDBContext : DbContext
                 .HasConstraintName("FK__ChiTietDo__MaSan__59063A47");
         });
 
-        modelBuilder.Entity<DanhGium>(entity =>
+        modelBuilder.Entity<DanhGia>(entity =>
         {
             entity.HasKey(e => e.MaDanhGia).HasName("PK__DanhGia__AA9515BF49A0A7F1");
+            entity.ToTable("DanhGia"); //
 
             entity.Property(e => e.NgayDanhGia)
                 .HasDefaultValueSql("(getdate())")

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace DoAnTotNghiep.Models;
 
-public partial class DanhGium
+public partial class DanhGia
 {
     public int MaDanhGia { get; set; }
 

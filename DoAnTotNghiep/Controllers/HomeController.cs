@@ -8,9 +8,10 @@ namespace DoAnTotNghiep.Controllers
         {
             return View();
         }
-        public IActionResult Shop()
+        public IActionResult Shop(string searchString)
         {
-            // Thêm dòng này để ép nó tìm đúng file
+            // Không cần xử lý lọc ở đây vì file JS của ông sẽ tự làm việc đó
+            // Chỉ cần trả về View Shop trống để JS nhảy vào load đồ
             return View();
         }
         public IActionResult Details(int id)

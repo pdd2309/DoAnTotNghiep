@@ -1,40 +1,27 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
-    // element container
     const container = document.getElementById('product-detail-content');
     if (!container) return;
 
-    // productId được set trong Details.cshtml via ViewBag
     if (typeof productId === 'undefined' || !productId) {
         container.innerHTML = '<div class="col-12 text-center text-danger">Không tìm thấy ID sản phẩm.</div>';
-        console.error('Không tìm thấy productId (ViewBag.MaSanPham).');
         return;
     }
 
+    // --- BƯỚC 1: LOAD CHI TIẾT SẢN PHẨM ---
     fetch(`/api/SanPhamApi/${productId}`)
-        .then(res => {
-            if (!res.ok) throw new Error('API trả về lỗi: ' + res.status);
-            return res.json();
-        })
+        .then(res => res.json())
         .then(result => {
-            // hỗ trợ nhiều shape: { data: {...} } hoặc trực tiếp object
             const sp = result.data || result || result.value;
-            if (!sp) {
-                container.innerHTML = '<div class="col-12 text-center text-danger">Không có dữ liệu sản phẩm.</div>';
-                console.error('API không trả dữ liệu sản phẩm', result);
-                return;
-            }
+            if (!sp) return;
 
             const id = sp.maSanPham || sp.MaSanPham || productId;
             const name = sp.tenSanPham || sp.TenSanPham || 'Sản phẩm';
             const desc = sp.moTa || sp.MoTa || '';
             const priceVal = sp.giaTien || sp.GiaTien || 0;
             const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(priceVal);
-
-            // normalize image path
             const rawImg = sp.hinhAnh || sp.HinhAnh || '/img/product/details/product-details-1.jpg';
             const img = (/^https?:\/\//i.test(rawImg) || rawImg.startsWith('/')) ? rawImg : '/' + rawImg;
 
-            // build HTML (có thể tuỳ chỉnh structure cho giống template)
             container.innerHTML = `
                 <div class="col-lg-6 col-md-6">
                     <div class="product__details__pic">
@@ -43,34 +30,100 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                     <div class="product__details__text">
-                        <h3 id="detail-name">${name}</h3>
-                        <div class="product__details__price"><span id="detail-price">${price}</span></div>
-                        <p id="detail-desc">${desc}</p>
+                        <h3>${name}</h3>
+                        <div class="product__details__price"><span>${price}</span></div>
+                        <p>${desc}</p>
                         <button id="add-to-cart" class="primary-btn">Thêm vào giỏ</button>
                     </div>
-                </div>
-            `;
+                </div>`;
 
-            // add-to-cart handler (sử dụng hàm addToCart nếu đã có)
-            const addBtn = document.getElementById('add-to-cart');
-            if (addBtn) {
-                addBtn.onclick = function () {
-                    if (typeof addToCart === 'function') {
-                        addToCart({
-                            id: id,
-                            name: name,
-                            price: priceVal,
-                            image: img
-                        });
-                    } else {
-                        console.warn('Hàm addToCart chưa được định nghĩa.');
-                        alert('Chức năng giỏ hàng hiện chưa khả dụng.');
-                    }
-                };
-            }
-        })
-        .catch(err => {
-            console.error('Lỗi khi gọi API chi tiết sản phẩm:', err);
-            container.innerHTML = '<div class="col-12 text-center text-danger">Không thể tải thông tin sản phẩm. Vui lòng thử lại.</div>';
+            document.getElementById('add-to-cart').onclick = () => {
+                if (typeof addToCart === 'function') {
+                    addToCart({ id, name, price: priceVal, image: img });
+                }
+            };
+
+            // Sau khi load xong máy thì load đánh giá
+            loadReviews(productId);
         });
 });
+
+// --- BƯỚC 2: HÀM LOAD ĐÁNH GIÁ ---
+async function loadReviews(id) {
+    try {
+        // ✅ ĐÃ FIX: Đường dẫn gọi đúng /api/SanPhamApi/...
+        const res = await fetch(`/api/SanPhamApi/${id}/reviews`);
+        if (!res.ok) throw new Error('Lỗi khi tải đánh giá');
+        const reviews = await res.json();
+
+        const reviewListEl = document.getElementById('review-list');
+        const reviewCountEl = document.getElementById('review-count');
+
+        if (reviewCountEl) reviewCountEl.innerText = `(${reviews.length || 0})`;
+        if (!reviewListEl) return;
+
+        if (!reviews.length) {
+            reviewListEl.innerHTML = '<p class="text-center">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+            return;
+        }
+
+        let html = '';
+        reviews.forEach(review => {
+            const stars = '★'.repeat(review.soSao) + '☆'.repeat(5 - review.soSao);
+            html += `
+            <div class="review-item mb-4 pb-4" style="border-bottom: 1px solid #ebebeb;">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>${review.tenNguoiDung}</strong>
+                        <span class="text-warning ml-3">${stars}</span>
+                    </div>
+                    <small class="text-muted">${review.ngay}</small>
+                </div>
+                <p class="mt-2 mb-0">${review.noiDung}</p>
+            </div>`;
+        });
+        reviewListEl.innerHTML = html;
+    } catch (err) {
+        console.error('Lỗi load reviews:', err);
+    }
+}
+
+// --- BƯỚC 3: HÀM GỬI ĐÁNH GIÁ ---
+window.sendReview = async function () {
+    const contentEl = document.getElementById('review-content');
+    const starsEl = document.getElementById('review-stars');
+    const content = contentEl?.value?.trim() || '';
+    const stars = parseInt(starsEl?.value) || 5;
+
+    if (!content) {
+        alert('Vui lòng nhập nội dung đánh giá');
+        return;
+    }
+
+    try {
+        // ✅ ĐÃ FIX: Đường dẫn gọi đúng /api/SanPhamApi/reviews
+        const res = await fetch('/api/SanPhamApi/reviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                maSanPham: parseInt(productId),
+                soSao: stars,
+                noiDung: content
+            })
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            alert(result.message || 'Lỗi gửi đánh giá');
+            return;
+        }
+
+        alert('Đánh giá thành công!');
+        contentEl.value = '';
+        await loadReviews(productId);
+    } catch (err) {
+        console.error('Lỗi gửi đánh giá:', err);
+        alert('Có lỗi xảy ra, vui lòng thử lại.');
+    }
+};

@@ -5,7 +5,7 @@ using DoAnTotNghiep.Models.DTOs;
 
 namespace DoAnTotNghiep.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] // Route này sẽ là /api/SanPhamApi
     [ApiController]
     public class SanPhamApiController : ControllerBase
     {
@@ -20,9 +20,6 @@ namespace DoAnTotNghiep.Controllers
 
         // ============ GET METHODS ============
 
-        /// <summary>
-        /// Lấy danh sách tất cả sản phẩm
-        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SanPham>>> GetAllSanPhams()
         {
@@ -32,29 +29,15 @@ namespace DoAnTotNghiep.Controllers
                     .Include(sp => sp.MaDanhMucNavigation)
                     .ToListAsync();
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy danh sách sản phẩm thành công",
-                    data = sanPhams,
-                    count = sanPhams.Count
-                });
+                return Ok(new { success = true, data = sanPhams, count = sanPhams.Count });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi lấy danh sách sản phẩm");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra khi truy xuất dữ liệu",
-                    error = ex.Message
-                });
+                return StatusCode(500, new { success = false, message = "Có lỗi xảy ra", error = ex.Message });
             }
         }
 
-        /// <summary>
-        /// Lấy sản phẩm theo ID
-        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<SanPham>> GetSanPhamById(int id)
         {
@@ -66,330 +49,90 @@ namespace DoAnTotNghiep.Controllers
 
                 if (sanPham == null)
                 {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = $"Không tìm thấy sản phẩm với ID: {id}"
-                    });
+                    return NotFound(new { success = false, message = $"Không tìm thấy ID: {id}" });
                 }
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy sản phẩm thành công",
-                    data = sanPham
-                });
+                return Ok(new { success = true, data = sanPham });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Lỗi khi lấy sản phẩm ID: {id}");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra",
-                    error = ex.Message
-                });
+                return StatusCode(500, new { success = false, error = ex.Message });
             }
         }
 
-        /// <summary>
-        /// Lấy sản phẩm theo danh mục
-        /// </summary>
-        [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<SanPham>>> GetSanPhamByCategory(int categoryId)
+        // ============ CHỨC NĂNG ĐÁNH GIÁ (REVIEW) ============
+
+        [HttpGet("{id}/reviews")]
+        public async Task<IActionResult> GetReviews(int id)
         {
             try
             {
-                var sanPhams = await _context.SanPhams
-                    .Where(sp => sp.MaDanhMuc == categoryId)
-                    .Include(sp => sp.MaDanhMucNavigation)
+                var reviews = await _context.DanhGias
+                    .Where(d => d.MaSanPham == id)
+                    .Include(d => d.MaNguoiDungNavigation)
+                    .OrderByDescending(d => d.NgayDanhGia)
+                    .Select(d => new
+                    {
+                        d.MaDanhGia,
+                        tenNguoiDung = d.MaNguoiDungNavigation != null ? d.MaNguoiDungNavigation.HoTen : "Khách hàng",
+                        d.NoiDung,
+                        soSao = d.SoSao ?? 5,
+                        ngay = d.NgayDanhGia.HasValue ? d.NgayDanhGia.Value.ToString("dd/MM/yyyy HH:mm") : ""
+                    })
                     .ToListAsync();
 
-                return Ok(new
-                {
-                    success = true,
-                    message = "Lấy sản phẩm theo danh mục thành công",
-                    data = sanPhams,
-                    count = sanPhams.Count
-                });
+                return Ok(reviews);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Lỗi khi lấy sản phẩm theo danh mục: {categoryId}");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra",
-                    error = ex.Message
-                });
+                return StatusCode(500, new { message = "Lỗi tải đánh giá", error = ex.Message });
             }
         }
 
-        // ============ CREATE METHOD ============
-
-        /// <summary>
-        /// Thêm sản phẩm mới
-        /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<SanPham>> CreateSanPham([FromBody] CreateSanPhamDto dto)
+        [HttpPost("reviews")]
+        public async Task<IActionResult> PostReview([FromBody] PostReviewDto dto)
         {
             try
             {
-                // Validate dữ liệu
-                if (string.IsNullOrWhiteSpace(dto.TenSanPham))
+                var userId = HttpContext.Session.GetInt32("UserId");
+                if (userId == null)
                 {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Tên sản phẩm không được để trống"
-                    });
+                    return BadRequest(new { success = false, message = "Vui lòng đăng nhập để đánh giá!" });
                 }
 
-                if (dto.GiaTien <= 0)
+                var review = new DanhGia
                 {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Giá tiền phải lớn hơn 0"
-                    });
-                }
-
-                // Kiểm tra danh mục có tồn tại không
-                if (dto.MaDanhMuc.HasValue)
-                {
-                    var danhMucExists = await _context.DanhMucs
-                        .AnyAsync(dm => dm.MaDanhMuc == dto.MaDanhMuc);
-
-                    if (!danhMucExists)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = $"Danh mục ID {dto.MaDanhMuc} không tồn tại"
-                        });
-                    }
-                }
-
-                var sanPham = new SanPham
-                {
-                    TenSanPham = dto.TenSanPham,
-                    GiaTien = dto.GiaTien,
-                    MoTa = dto.MoTa,
-                    HinhAnh = dto.HinhAnh,
-                    MaDanhMuc = dto.MaDanhMuc
+                    MaSanPham = dto.MaSanPham,
+                    MaNguoiDung = userId,
+                    NoiDung = dto.NoiDung,
+                    SoSao = dto.SoSao,
+                    NgayDanhGia = DateTime.Now
                 };
 
-                _context.SanPhams.Add(sanPham);
+                _context.DanhGias.Add(review);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Thêm sản phẩm mới thành công: {sanPham.MaSanPham}");
-
-                return CreatedAtAction(nameof(GetSanPhamById), new { id = sanPham.MaSanPham }, new
-                {
-                    success = true,
-                    message = "Thêm sản phẩm thành công",
-                    data = sanPham
-                });
+                return Ok(new { success = true, message = "Cảm ơn bạn đã gửi đánh giá!" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi thêm sản phẩm");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra khi thêm sản phẩm",
-                    error = ex.Message
-                });
+                return BadRequest(new { success = false, message = "Lỗi: " + ex.Message });
             }
         }
 
-        // ============ UPDATE METHOD ============
-
-        /// <summary>
-        /// Cập nhật sản phẩm
-        /// </summary>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSanPham(int id, [FromBody] UpdateSanPhamDto dto)
-        {
-            try
-            {
-                var sanPham = await _context.SanPhams.FindAsync(id);
-
-                if (sanPham == null)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = $"Không tìm thấy sản phẩm ID: {id}"
-                    });
-                }
-
-                // Validate dữ liệu
-                if (!string.IsNullOrWhiteSpace(dto.TenSanPham) && string.IsNullOrWhiteSpace(dto.TenSanPham))
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Tên sản phẩm không được để trống"
-                    });
-                }
-
-                if (dto.GiaTien.HasValue && dto.GiaTien <= 0)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Giá tiền phải lớn hơn 0"
-                    });
-                }
-
-                // Kiểm tra danh mục có tồn tại không
-                if (dto.MaDanhMuc.HasValue)
-                {
-                    var danhMucExists = await _context.DanhMucs
-                        .AnyAsync(dm => dm.MaDanhMuc == dto.MaDanhMuc);
-
-                    if (!danhMucExists)
-                    {
-                        return BadRequest(new
-                        {
-                            success = false,
-                            message = $"Danh mục ID {dto.MaDanhMuc} không tồn tại"
-                        });
-                    }
-                }
-
-                // Cập nhật các trường
-                if (!string.IsNullOrWhiteSpace(dto.TenSanPham))
-                    sanPham.TenSanPham = dto.TenSanPham;
-
-                if (dto.GiaTien.HasValue)
-                    sanPham.GiaTien = dto.GiaTien.Value;
-
-                if (dto.MoTa != null)
-                    sanPham.MoTa = dto.MoTa;
-
-                if (!string.IsNullOrWhiteSpace(dto.HinhAnh))
-                    sanPham.HinhAnh = dto.HinhAnh;
-
-                if (dto.MaDanhMuc.HasValue)
-                    sanPham.MaDanhMuc = dto.MaDanhMuc;
-
-                _context.SanPhams.Update(sanPham);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"Cập nhật sản phẩm thành công: {id}");
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Cập nhật sản phẩm thành công",
-                    data = sanPham
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Lỗi khi cập nhật sản phẩm ID: {id}");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra khi cập nhật sản phẩm",
-                    error = ex.Message
-                });
-            }
-        }
-
-        // ============ DELETE METHOD ============
-
-        /// <summary>
-        /// Xóa sản phẩm
-        /// </summary>
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSanPham(int id)
-        {
-            try
-            {
-                var sanPham = await _context.SanPhams.FindAsync(id);
-
-                if (sanPham == null)
-                {
-                    return NotFound(new
-                    {
-                        success = false,
-                        message = $"Không tìm thấy sản phẩm ID: {id}"
-                    });
-                }
-
-                // Kiểm tra xem sản phẩm có được sử dụng trong đơn hàng không
-                var hasOrders = await _context.ChiTietDonHangs
-                    .AnyAsync(ctdh => ctdh.MaSanPham == id);
-
-                if (hasOrders)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Không thể xóa sản phẩm này vì nó đang được sử dụng trong đơn hàng"
-                    });
-                }
-
-                _context.SanPhams.Remove(sanPham);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation($"Xóa sản phẩm thành công: {id}");
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Xóa sản phẩm thành công",
-                    data = new { maSanPham = id }
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Lỗi khi xóa sản phẩm ID: {id}");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra khi xóa sản phẩm",
-                    error = ex.Message
-                });
-            }
-        }
-
-        // ============ SEARCH METHOD ============
-
-        /// <summary>
-        /// Tìm kiếm sản phẩm theo tên
-        /// </summary>
+        // ============ CÁC METHOD KHÁC (SEARCH, DELETE...) ============
         [HttpGet("search/{keyword}")]
         public async Task<ActionResult<IEnumerable<SanPham>>> SearchSanPham(string keyword)
         {
-            try
-            {
-                var sanPhams = await _context.SanPhams
-                    .Where(sp => sp.TenSanPham.Contains(keyword))
-                    .Include(sp => sp.MaDanhMucNavigation)
-                    .ToListAsync();
-
-                return Ok(new
-                {
-                    success = true,
-                    message = $"Tìm thấy {sanPhams.Count} sản phẩm",
-                    data = sanPhams,
-                    count = sanPhams.Count
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Lỗi khi tìm kiếm sản phẩm: {keyword}");
-                return StatusCode(500, new
-                {
-                    success = false,
-                    message = "Có lỗi xảy ra",
-                    error = ex.Message
-                });
-            }
+            var sanPhams = await _context.SanPhams.Where(sp => sp.TenSanPham.Contains(keyword)).ToListAsync();
+            return Ok(new { success = true, data = sanPhams });
         }
+    }
+
+    public class PostReviewDto
+    {
+        public int MaSanPham { get; set; }
+        public string NoiDung { get; set; } = "";
+        public int SoSao { get; set; } = 5;
     }
 }
