@@ -205,9 +205,16 @@
     <script src="/js/jquery.slicknav.js"></script>
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
-    <script src="/js/main.js"></script>
+
+    <script>
+        window.appUserName = '@(userName ?? "")';
+    </script>
+
+    <script src="/js/cart.js"></script>
+    <script src="/js/fetch-cart.js"></script>
     <script src="/js/ai-chatbot.js"></script>
-    <script>window.appUserName = '@(userName ?? "")';</script>
+    <script src="/js/main.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
