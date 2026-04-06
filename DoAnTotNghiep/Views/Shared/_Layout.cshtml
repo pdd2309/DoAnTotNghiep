@@ -8,14 +8,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Cửa Hàng Công Nghệ">
-    <meta name="keywords" content="Công Nghệ, Điện Tử, Thiết Bị, HTML">
+    <meta name="description" content="Tech Store - Cửa Hàng Công Nghệ">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cửa Hàng Công Nghệ | Ogani</title>
+    <title>Tech Store | Cửa Hàng Công Nghệ</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
@@ -26,6 +24,79 @@
     <link rel="stylesheet" href="/css/style.css" type="text/css">
 
     <style>
+        /* --- HỆ THỐNG MÀU TECH STORE --- */
+        :root {
+            --tech-blue: #007bff;
+            --tech-blue-dark: #0056b3;
+        }
+
+        /* 1. Đồng bộ nút bấm & Search & Danh mục */
+        .site-btn, .primary-btn, .hero__search__form button, .hero__categories__all {
+            background: var(--tech-blue) !important;
+        }
+
+        .hero__categories ul {
+            border-top: 3px solid var(--tech-blue) !important;
+        }
+
+        .hero__search__phone__icon {
+            color: var(--tech-blue) !important;
+            border-color: var(--tech-blue) !important;
+        }
+
+        /* 2. Đồng bộ Menu & Giỏ hàng */
+        .header__cart ul li a i, .header__menu ul li.active a, .header__menu ul li:hover a {
+            color: var(--tech-blue) !important;
+        }
+
+        .header__cart ul li a span {
+            background: var(--tech-blue) !important;
+        }
+
+        /* 3. FIX CHATBOT TOÀN DIỆN - XANH ĐỒNG BỘ */
+        #btn-open-chat {
+            background: var(--tech-blue) !important;
+        }
+
+        #ai-chat-box {
+            border: 2px solid var(--tech-blue) !important;
+        }
+            /* Header của chatbot */
+            #ai-chat-box > div:first-child {
+                background: var(--tech-blue) !important;
+            }
+        /* Nút gửi tin nhắn */
+        #btn-send-chat {
+            background: var(--tech-blue) !important;
+        }
+        /* Icon trong chatbot */
+        #ai-chat-wrapper i {
+            color: white;
+        }
+
+        /* FIX KHOẢNG TRỐNG */
+        .header {
+            padding-bottom: 0 !important;
+        }
+
+        .header__logo {
+            padding: 10px 0 !important;
+        }
+
+            .header__logo img, .footer__about__logo img, .humberger__menu__logo img {
+                max-width: 150px;
+                height: auto;
+                mix-blend-mode: multiply;
+            }
+
+        .header__menu {
+            padding: 20px 0 !important;
+        }
+
+        .hero {
+            padding-top: 10px !important;
+        }
+
         .header__top__right__auth {
             display: inline-block !important;
         }
@@ -46,176 +117,86 @@
     @{
         var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
         var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
-
         int cartCount = 0;
         if (userId != null)
         {
-            try
-            {
-                // Thay vì .Count(), mình dùng .Sum() để cộng dồn cột số lượng
-                // Ông kiểm tra xem trong bảng Cart, cột số lượng tên là gì (Quantity hay SoLuong)
-                // Tui giả sử tên cột là Quantity nhé
-                cartCount = _db.CartItems
-                .Where(c => c.CartId == userId) // Hoặc c.MaNguoiDung tùy DB ông
-                .Sum(c => (int?)c.Quantity) ?? 0;
-            }
-            catch
-            {
-                cartCount = 0;
-            }
+            try { cartCount = _db.CartItems.Where(c => c.CartId == userId).Sum(c => (int?)c.Quantity) ?? 0; }
+            catch { cartCount = 0; }
         }
     }
 
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
+    <div id="preloder"><div class="loader"></div></div>
 
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
-        <div class="humberger__menu__logo">
-            <a href="/"><img src="/img/logo.png" alt=""></a>
-        </div>
-        <div class="humberger__menu__cart">
-            <ul>
-                @* Đã bỏ trái tim *@
-                <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li>
-            </ul>
-        </div>
-        <div class="humberger__menu__widget">
-            <div class="header__top__right__auth">
-                @if (userName != null)
-                {
-                    <a href="#"><i class="fa fa-user"></i> @userName</a>
-                }
-                else
-                {
-                    <a href="/Account/Login"><i class="fa fa-user"></i> Đăng Nhập</a>
-                }
-            </div>
-        </div>
-        <nav class="humberger__menu__nav mobile-menu">
-            <ul>
-                <li><a href="/">Trang Chủ</a></li>
-                <li><a href="/Home/Shop">Cửa Hàng</a></li>
-                <li><a href="/Account/LichSuMuaHang">Lịch sử mua hàng</a></li>
-            </ul>
-        </nav>
+        <div class="humberger__menu__logo"><a href="/"><img src="/img/logo4.png" alt="Tech Store"></a></div>
+        <div class="humberger__menu__cart"><ul><li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li></ul></div>
+        <div class="humberger__menu__widget"><div class="header__top__right__auth">@if (userName != null){
+        <a href="#"><i class="fa fa-user"></i> @userName</a>
+                }else
+        {
+
+            <a href="/Account/Login"><i class="fa fa-user"></i> Đăng Nhập</a>
+        }
+</div></div>
+        <nav class="humberger__menu__nav mobile-menu"><ul><li><a href="/">Trang Chủ</a></li><li><a href="/Home/Shop">Cửa Hàng</a></li><li><a href="/Account/LichSuMuaHang">Lịch sử</a></li></ul></nav>
+        <div id="mobile-menu-wrap"></div>
     </div>
 
     <header class="header">
         <div class="header__top">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6">
-                        <div class="header__top__left">
-                            <ul>
-                                <li><i class="fa fa-envelope"></i> support@congnghe.vn</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="header__top__right">
-                            <div class="header__top__right__social">
-                                <a href="#"><i class="fa fa-facebook"></i></a>
-                                <a href="#"><i class="fa fa-twitter"></i></a>
-                                <a href="#"><i class="fa fa-linkedin"></i></a>
-                            </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-6"><div class="header__top__left"><ul><li><i class="fa fa-envelope"></i> support@techstore.vn</li></ul></div></div>
+                    <div class="col-lg-6 text-right">
+                        <div class="header__top__right__social"><a href="#"><i class="fa fa-facebook"></i></a><a href="#"><i class="fa fa-twitter"></i></a><a href="#"><i class="fa fa-linkedin"></i></a></div>
+                        <div class="header__top__right__auth">
+                            @if (userName != null)
+                            {
+                                <div class="header__top__right__language">
+                                    <a href="#"><i class="fa fa-user"></i> Chào, @userName <i class="fa fa-angle-down"></i></a>
+                                    <ul><li><a href="/Account/LichSuMuaHang">Đơn hàng</a></li><li><a href="/Account/Logout" style="color:red !important">Thoát</a></li></ul>
+                                </div>
+                            }
+                            else
+                            {
 
-                            <div class="header__top__right__auth">
-                                @if (userName != null)
-                                {
-                                    <div class="header__top__right__language">
-                                        <a href="#"><i class="fa fa-user"></i> Chào, @userName <i class="fa fa-angle-down"></i></a>
-                                        <ul>
-                                            <li><a href="/Account/LichSuMuaHang">Đơn hàng</a></li>
-                                            <li><a href="/Account/Logout" style="color:red !important">Thoát</a></li>
-                                        </ul>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <a href="/Account/Login"><i class="fa fa-user"></i> Đăng Nhập</a>
-                                }
-                            </div>
+                                <a href="/Account/Login"><i class="fa fa-user"></i> Đăng Nhập</a>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="header__logo">
-                        <a href="/"><img src="/img/logo.png" alt=""></a>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <nav class="header__menu">
-                        <ul>
-                            <li class="active"><a href="/">Trang Chủ</a></li>
-                            <li><a href="/Home/Shop">Cửa Hàng</a></li>
-                            <li>
-                                <a href="#">Trang <i class="fa fa-angle-down"></i></a>
-                                <ul class="header__menu__dropdown">
-                                    <li><a href="/Home/Cart">Giỏ Hàng</a></li>
-                                    <li><a href="/Home/Checkout">Thanh Toán</a></li>
-                                    <li><a href="/Account/LichSuMuaHang">Lịch sử đơn hàng</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="col-lg-3">
-                    <div class="header__cart">
-                        <ul>
-                            @* Icon giỏ hàng và số lượng lấy từ DB *@
-                            <li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="row align-items-center">
+                <div class="col-lg-3"><div class="header__logo"><a href="/"><img src="/img/logo4.png" alt="Tech Store"></a></div></div>
+                <div class="col-lg-6 text-center"><nav class="header__menu"><ul><li class="active"><a href="/">Trang Chủ</a></li><li><a href="/Home/Shop">Cửa Hàng</a></li><li><a href="#">Trang <i class="fa fa-angle-down"></i></a><ul class="header__menu__dropdown"><li><a href="/Home/Cart">Giỏ Hàng</a></li><li><a href="/Home/Checkout">Thanh Toán</a></li><li><a href="/Account/LichSuMuaHang">Đơn hàng</a></li></ul></li></ul></nav></div>
+                <div class="col-lg-3 text-right"><div class="header__cart"><ul><li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li></ul></div></div>
             </div>
         </div>
     </header>
 
-    <div class="container-content">
-        @RenderBody()
-    </div>
+    <div class="container-content">@RenderBody()</div>
 
     <footer class="footer spad">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3 col-md-6">
-                    <div class="footer__about">
-                        <div class="footer__about__logo">
-                            <a href="/"><img src="/img/logo.png" alt=""></a>
-                        </div>
-                        <ul>
-                            <li>Địa chỉ: 123 Công Nghệ, TP.HCM</li>
-                            <li>Phone: +84 123 456 789</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 offset-lg-1">
-                    <div class="footer__widget">
-                        <h6>Liên kết nhanh</h6>
-                        <ul>
-                            <li><a href="#">Về chúng tôi</a></li>
-                            <li><a href="/Account/LichSuMuaHang">Lịch sử mua hàng</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="footer__widget">
-                        <h6>Đăng ký nhận tin</h6>
-                        <form action="#">
-                            <input type="text" placeholder="Email của bạn">
-                            <button type="submit" class="site-btn">Đăng ký</button>
-                        </form>
-                    </div>
-                </div>
+                <div class="col-lg-3"><div class="footer__about"><div class="footer__about__logo"><a href="/"><img src="/img/logo4.png" alt="Tech Store"></a></div><ul><li>Địa chỉ: 123 Công Nghệ, TP.HCM</li><li>Phone: +84 123 456 789</li></ul></div></div>
+                <div class="col-lg-4 offset-lg-1"><div class="footer__widget"><h6>Liên kết</h6><ul><li><a href="#">Về chúng tôi</a></li><li><a href="/Account/LichSuMuaHang">Lịch sử mua hàng</a></li></ul></div></div>
+                <div class="col-lg-4"><div class="footer__widget"><h6>Đăng ký</h6><form action="#"><input type="text" placeholder="Email..."><button type="submit" class="site-btn">Đăng ký</button></form></div></div>
             </div>
         </div>
     </footer>
+
+    <div id="ai-chat-wrapper" style="position: fixed; bottom: 80px; right: 20px; z-index: 9999;">
+        <button id="btn-open-chat" style="color: white; border: none; border-radius: 50%; width: 60px; height: 60px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"><i class="fa fa-commenting" style="font-size: 24px; color:white !important;"></i></button>
+        <div id="ai-chat-box" style="display: none; width: 320px; height: 420px; background: white; border-radius: 12px; flex-direction: column; position: absolute; bottom: 70px; right: 0; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <div style="color: white; padding: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;"><span>🤖 Trợ Lý Tech Store</span><span id="btn-close-chat" style="cursor: pointer; font-size: 20px;">&times;</span></div>
+            <div id="chat-content" style="flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px;"><div style="background: #eee; padding: 8px 12px; border-radius: 15px; align-self: flex-start; max-width: 80%;">Chào Đông! Tui là Lôi Đỏ, ông cần tư vấn đồ công nghệ gì không?</div></div>
+            <div style="padding: 10px; border-top: 1px solid #ddd; display: flex; background: white;"><input type="text" id="chat-input" placeholder="Nhập câu hỏi..." style="flex: 1; border: 1px solid #ccc; padding: 8px; border-radius: 20px; outline: none;"><button id="btn-send-chat" style="color: white; border: none; padding: 8px 15px; margin-left: 5px; border-radius: 20px; cursor: pointer;"><i class="fa fa-paper-plane" style="color:white !important;"></i></button></div>
+        </div>
+    </div>
 
     <script src="/js/jquery-3.3.1.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
@@ -224,14 +205,9 @@
     <script src="/js/jquery.slicknav.js"></script>
     <script src="/js/mixitup.min.js"></script>
     <script src="/js/owl.carousel.min.js"></script>
-
-    <script>
-        window.appUserName = '@(userName ?? "")';
-    </script>
-
-    <script src="/js/cart.js"></script>
     <script src="/js/main.js"></script>
-
+    <script src="/js/ai-chatbot.js"></script>
+    <script>window.appUserName = '@(userName ?? "")';</script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
