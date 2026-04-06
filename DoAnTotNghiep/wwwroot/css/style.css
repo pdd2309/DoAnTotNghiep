@@ -3466,10 +3466,3 @@ ol {
 		font-size: 24px;
 	}
 }
-/* Phép thuật xóa ngôn ngữ và phí vận chuyển trên mọi trang */
-.header__top__right__language,
-.humberger__menu__widget .header__top__right__language,
-.header__top__left ul li:last-child,
-.humberger__menu__contact ul li:last-child {
-	display: none !important;
-}
