@@ -5,16 +5,59 @@ using Microsoft.EntityFrameworkCore;
 namespace DoAnTotNghiep.Controllers
 {
     [ApiController]
-    [Route("api/Cart")] // <- use fixed route so client calls /api/Cart/...
+    [Route("api/Cart")]
     public class CartApiController : ControllerBase
     {
         private readonly CuaHangCongNgheDBContext _db;
+
         public CartApiController(CuaHangCongNgheDBContext db) => _db = db;
 
-        // Helper: lấy username từ session
+        private int? GetUserId() => HttpContext.Session.GetInt32("UserId");
         private string? GetUserName() => HttpContext.Session.GetString("UserName");
+        private static string BuildLegacyCartKey(int userId) => $"uid:{userId}";
 
-        // DTOs
+        private async Task<Cart?> FindCartAsync(int userId, string? displayName, bool includeItems)
+        {
+            var legacyCartKey = BuildLegacyCartKey(userId);
+
+            IQueryable<Cart> query = _db.Carts;
+            if (includeItems)
+            {
+                query = query.Include(c => c.CartItems);
+            }
+
+            return await query.FirstOrDefaultAsync(c =>
+                (!string.IsNullOrEmpty(displayName) && c.UserName == displayName) ||
+                c.UserName == legacyCartKey);
+        }
+
+        private async Task<Cart> GetOrCreateCartAsync(int userId, string? displayName)
+        {
+            var cart = await FindCartAsync(userId, displayName, includeItems: true);
+            if (cart != null)
+            {
+                // Chuẩn hóa để lưu tên user trong DB cho dễ nhìn
+                if (!string.IsNullOrWhiteSpace(displayName) && cart.UserName != displayName)
+                {
+                    cart.UserName = displayName;
+                    await _db.SaveChangesAsync();
+                }
+
+                return cart;
+            }
+
+            cart = new Cart
+            {
+                // KHÔNG gán Id thủ công vì Id thường là IDENTITY
+                UserName = !string.IsNullOrWhiteSpace(displayName)
+                    ? displayName
+                    : BuildLegacyCartKey(userId)
+            };
+
+            _db.Carts.Add(cart);
+            return cart;
+        }
+
         public class CartItemDto
         {
             public int ProductId { get; set; }
@@ -27,66 +70,55 @@ namespace DoAnTotNghiep.Controllers
             public List<CartItemDto> Items { get; set; } = new();
         }
 
-        // GET api/Cart
         [HttpGet]
         public async Task<IActionResult> GetCart()
         {
-            var user = GetUserName();
-            if (user == null) return Unauthorized();
+            var userId = GetUserId();
+            var displayName = GetUserName();
+            if (userId == null) return Unauthorized();
 
-            // load cart and items, include product info in one query
-            var cart = await _db.Carts
-                .Where(c => c.UserName == user)
-                .Select(c => new
-                {
-                    c.Id,
-                    c.UserName,
-                    Items = c.CartItems.Select(i => new
-                    {
-                        Id = i.Id,
-                        ProductId = i.ProductId,
-                        Quantity = i.Quantity,
-                        Price = i.Price,
-                        // try to include product info if available
-                        Product = _db.SanPhams
-                            .Where(p => p.MaSanPham == i.ProductId)
-                            .Select(p => new { p.MaSanPham, p.TenSanPham, p.HinhAnh, p.GiaTien })
-                            .FirstOrDefault()
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+            var cart = await FindCartAsync(userId.Value, displayName, includeItems: false);
 
             if (cart == null)
             {
                 return Ok(new { items = new object[0] });
             }
 
-            // normalize to a single items array for the client: id, productId, quantity, price, name, image
-            var items = cart.Items.Select(i => new {
-                id = i.Id,
-                productId = i.ProductId,
-                quantity = i.Quantity,
-                price = i.Price,
-                name = i.Product?.TenSanPham ?? "",
-                image = i.Product?.HinhAnh ?? "",
-            }).ToList();
+            var items = await _db.CartItems
+                .Where(i => i.CartId == cart.Id)
+                .Select(i => new
+                {
+                    id = i.Id,
+                    productId = i.ProductId,
+                    quantity = i.Quantity,
+                    price = i.Price,
+                    name = _db.SanPhams
+                        .Where(p => p.MaSanPham == i.ProductId)
+                        .Select(p => p.TenSanPham)
+                        .FirstOrDefault() ?? "",
+                    image = _db.SanPhams
+                        .Where(p => p.MaSanPham == i.ProductId)
+                        .Select(p => p.HinhAnh)
+                        .FirstOrDefault() ?? ""
+                })
+                .ToListAsync();
 
             return Ok(new { items });
         }
 
-        // POST api/Cart/Add
         [HttpPost("Add")]
         public async Task<IActionResult> AddItem([FromBody] CartItemDto dto)
         {
-            var user = GetUserName();
-            if (user == null) return Unauthorized();
-
-            var cart = await _db.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserName == user);
-            if (cart == null)
+            if (dto == null || dto.ProductId <= 0 || dto.Quantity <= 0)
             {
-                cart = new Cart { UserName = user };
-                _db.Carts.Add(cart);
+                return BadRequest("Dữ liệu sản phẩm không hợp lệ.");
             }
+
+            var userId = GetUserId();
+            var displayName = GetUserName();
+            if (userId == null) return Unauthorized();
+
+            var cart = await GetOrCreateCartAsync(userId.Value, displayName);
 
             var item = cart.CartItems.FirstOrDefault(i => i.ProductId == dto.ProductId);
             if (item != null)
@@ -108,22 +140,25 @@ namespace DoAnTotNghiep.Controllers
             return Ok(cart);
         }
 
-        // PUT api/Cart/Update
         [HttpPut("Update")]
         public async Task<IActionResult> UpdateItem([FromBody] CartItemDto dto)
         {
-            var user = GetUserName();
-            if (user == null) return Unauthorized();
+            if (dto == null || dto.ProductId <= 0)
+            {
+                return BadRequest("Dữ liệu sản phẩm không hợp lệ.");
+            }
 
-            var cart = await _db.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserName == user);
+            var userId = GetUserId();
+            var displayName = GetUserName();
+            if (userId == null) return Unauthorized();
+
+            var cart = await FindCartAsync(userId.Value, displayName, includeItems: true);
             if (cart == null) return NotFound();
 
             var item = cart.CartItems.FirstOrDefault(i => i.ProductId == dto.ProductId);
             if (item == null) return NotFound();
 
-            // QUAN TRỌNG: Giữ nguyên Price, không được thay đổi
-            decimal originalPrice = item.Price;
-
+            var originalPrice = item.Price;
             if (dto.Quantity <= 0)
             {
                 cart.CartItems.Remove(item);
@@ -131,7 +166,6 @@ namespace DoAnTotNghiep.Controllers
             else
             {
                 item.Quantity = dto.Quantity;
-                // ĐỮ NGUYÊN PRICE - KHÔNG THAY ĐỔI
                 item.Price = originalPrice;
             }
 
@@ -139,57 +173,61 @@ namespace DoAnTotNghiep.Controllers
             return Ok(cart);
         }
 
-        // DELETE api/Cart/{productId}
         [HttpDelete("{productId}")]
         public async Task<IActionResult> RemoveItem(int productId)
         {
-            var user = GetUserName();
-            if (user == null) return Unauthorized();
+            if (productId <= 0)
+            {
+                return BadRequest("productId không hợp lệ.");
+            }
 
-            var cart = await _db.Carts
-                .Include(c => c.CartItems)
-                .FirstOrDefaultAsync(c => c.UserName == user);
+            var userId = GetUserId();
+            var displayName = GetUserName();
+            if (userId == null) return Unauthorized();
 
+            var cart = await FindCartAsync(userId.Value, displayName, includeItems: true);
             if (cart == null) return NotFound();
 
-            // Tìm các item cần xóa và dùng DbSet.RemoveRange để xóa an toàn với EF
             var itemsToRemove = cart.CartItems.Where(i => i.ProductId == productId).ToList();
             if (!itemsToRemove.Any()) return Ok(cart);
 
             _db.CartItems.RemoveRange(itemsToRemove);
             await _db.SaveChangesAsync();
 
-            var updatedCart = await _db.Carts
-                .Include(c => c.CartItems)
-                .FirstOrDefaultAsync(c => c.UserName == user);
-
+            var updatedCart = await FindCartAsync(userId.Value, displayName, includeItems: true);
             return Ok(updatedCart);
         }
 
-        // POST api/Cart/MergeLocal
         [HttpPost("MergeLocal")]
         public async Task<IActionResult> MergeLocal([FromBody] MergeCartDto dto)
         {
-            var user = GetUserName();
-            if (user == null) return Unauthorized();
-
-            var cart = await _db.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserName == user);
-            if (cart == null)
+            if (dto == null || dto.Items == null)
             {
-                cart = new Cart { UserName = user };
-                _db.Carts.Add(cart);
+                return BadRequest("Dữ liệu merge không hợp lệ.");
             }
 
-            foreach (var incoming in dto.Items)
+            var userId = GetUserId();
+            var displayName = GetUserName();
+            if (userId == null) return Unauthorized();
+
+            var cart = await GetOrCreateCartAsync(userId.Value, displayName);
+
+            foreach (var incoming in dto.Items.Where(x => x.ProductId > 0 && x.Quantity > 0))
             {
                 var item = cart.CartItems.FirstOrDefault(i => i.ProductId == incoming.ProductId);
-                if (item != null) item.Quantity += incoming.Quantity;
-                else cart.CartItems.Add(new CartItem
+                if (item != null)
                 {
-                    ProductId = incoming.ProductId,
-                    Quantity = incoming.Quantity,
-                    Price = incoming.Price
-                });
+                    item.Quantity += incoming.Quantity;
+                }
+                else
+                {
+                    cart.CartItems.Add(new CartItem
+                    {
+                        ProductId = incoming.ProductId,
+                        Quantity = incoming.Quantity,
+                        Price = incoming.Price
+                    });
+                }
             }
 
             await _db.SaveChangesAsync();

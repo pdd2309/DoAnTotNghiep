@@ -80,7 +80,13 @@ function mergeLocalToServer() {
 
 // cập nhật số lượng hiển thị trên header (server nếu đăng nhập, ngược lại localStorage)
 function updateCartCount() {
-    const el = document.getElementById('cart-count');
+    const elements = document.querySelectorAll('.cart-count');
+    const setCount = (value) => {
+        elements.forEach(el => {
+            el.innerText = value;
+        });
+    };
+
     if (window.appUserName) {
         fetch('/api/Cart')
             .then(r => {
@@ -91,16 +97,16 @@ function updateCartCount() {
                 // Cart API có thể trả { items: [...] } hoặc Cart.Items
                 const items = cart.items || cart.Items || cart.Items || [];
                 const total = (items || []).reduce((s, i) => s + (i.quantity || i.Quantity || 0), 0) || 0;
-                if (el) el.innerText = total;
+                setCount(total);
             })
             .catch(() => {
                 // fallback
                 const cart = JSON.parse(localStorage.getItem('shoppingCart')) || [];
-                if (el) el.innerText = cart.reduce((s, i) => s + (i.quantity || 0), 0);
+                setCount(cart.reduce((s, i) => s + (i.quantity || 0), 0));
             });
     } else {
         const cart = JSON.parse(localStorage.getItem('shoppingCart')) || [];
-        if (el) el.innerText = cart.reduce((s, i) => s + (i.quantity || 0), 0);
+        setCount(cart.reduce((s, i) => s + (i.quantity || 0), 0));
     }
 }
 

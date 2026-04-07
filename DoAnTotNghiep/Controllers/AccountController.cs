@@ -17,31 +17,8 @@ namespace DoAnTotNghiep.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
-        // Thêm hàm này vào AccountController.cs
-        public IActionResult LichSuMuaHang()
-        {
-            // 1. Lấy ID người dùng từ Session
-            int? userId = HttpContext.Session.GetInt32("UserId");
+        public IActionResult Login() => View();
 
-            // 2. Nếu chưa đăng nhập thì đá về trang Login
-            if (userId == null)
-            {
-                return RedirectToAction("Login");
-            }
-
-            // 3. Truy vấn danh sách đơn hàng của người dùng này từ SQL
-            // Sắp xếp đơn mới nhất lên đầu (OrderByDescending)
-            var danhSachDonHang = _db.DonHangs
-                .Where(d => d.MaNguoiDung == userId)
-                .OrderByDescending(d => d.NgayDat)
-                .ToList();
-
-            return View(danhSachDonHang);
-        }
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
@@ -51,7 +28,10 @@ namespace DoAnTotNghiep.Controllers
             {
                 var displayName = user.HoTen ?? user.TenDangNhap;
 
+                // --- LƯU SONG SONG CẢ ID VÀ TÊN ---
+                // Dùng UserId (int) để code truy vấn nhanh và chính xác
                 HttpContext.Session.SetInt32("UserId", user.MaNguoiDung);
+                // Dùng UserName (string) để hiện tên trên Layout và lưu vào DB cho ông dễ nhìn
                 HttpContext.Session.SetString("UserName", displayName);
 
                 var claims = new List<Claim>
@@ -63,9 +43,7 @@ namespace DoAnTotNghiep.Controllers
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
 
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    principal);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
                 return RedirectToAction("Index", "Home");
             }
@@ -81,7 +59,18 @@ namespace DoAnTotNghiep.Controllers
             return RedirectToAction("Login");
         }
 
-        // --- XỬ LÝ ĐĂNG NHẬP BẰNG GOOGLE / FACEBOOK ---
+        public IActionResult LichSuMuaHang()
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            var danhSachDonHang = _db.DonHangs
+                .Where(d => d.MaNguoiDung == userId)
+                .OrderByDescending(d => d.NgayDat)
+                .ToList();
+
+            return View(danhSachDonHang);
+        }
 
         [HttpGet]
         public IActionResult ExternalLogin(string provider)
@@ -94,50 +83,32 @@ namespace DoAnTotNghiep.Controllers
         public async Task<IActionResult> ExternalLoginCallback()
         {
             var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            if (!authenticateResult.Succeeded)
-            {
-                return RedirectToAction("Login");
-            }
+            if (!authenticateResult.Succeeded) return RedirectToAction("Login");
 
             var claims = authenticateResult.Principal.Identities.FirstOrDefault()?.Claims;
-
-            // 1. Lấy ProviderKey (ID định danh của GG/FB) - Cái này luôn luôn có
             var providerKey = claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            // 2. Lấy Email và Name (Có thì tốt, không có cũng không sao)
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
                      ?? claims?.FirstOrDefault(c => c.Type.Contains("emailaddress"))?.Value;
-
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
                     ?? claims?.FirstOrDefault(c => c.Type.Contains("name"))?.Value;
 
-            if (string.IsNullOrEmpty(providerKey))
-            {
-                ViewBag.Error = "Không thể xác định danh tính từ tài khoản liên kết.";
-                return View("Login");
-            }
+            if (string.IsNullOrEmpty(providerKey)) return RedirectToAction("Login");
 
-            // 3. Tìm user trong DB: Ưu tiên tìm theo ProviderKey, nếu không thấy thì tìm theo Email
             var user = _db.NguoiDungs.FirstOrDefault(u => u.TenDangNhap == providerKey || (email != null && u.Email == email));
 
             if (user == null)
             {
-                // Nếu chưa có, tạo tài khoản mới. 
-                // Dùng providerKey làm TenDangNhap để đảm bảo tính duy nhất.
                 user = new NguoiDung
                 {
                     TenDangNhap = providerKey,
                     MatKhau = "",
                     HoTen = name ?? "Khách hàng MXH",
-                    Email = email ?? (providerKey + "@social.com") // Tạo email giả nếu FB không cho
+                    Email = email ?? (providerKey + "@social.com")
                 };
-
                 _db.NguoiDungs.Add(user);
                 _db.SaveChanges();
             }
 
-            // Lưu Session
             HttpContext.Session.SetInt32("UserId", user.MaNguoiDung);
             HttpContext.Session.SetString("UserName", user.HoTen ?? user.TenDangNhap);
 

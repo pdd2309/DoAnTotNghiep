@@ -120,7 +120,18 @@
         int cartCount = 0;
         if (userId != null)
         {
-            try { cartCount = _db.CartItems.Where(c => c.CartId == userId).Sum(c => (int?)c.Quantity) ?? 0; }
+            try
+            {
+                var legacyKey = $"uid:{userId.Value}";
+                var cartIds = _db.Carts
+                    .Where(c => c.UserName == legacyKey || (!string.IsNullOrEmpty(userName) && c.UserName == userName))
+                    .Select(c => c.Id)
+                    .ToList();
+
+                cartCount = _db.CartItems
+                    .Where(ci => cartIds.Contains(ci.CartId))
+                    .Sum(ci => (int?)ci.Quantity) ?? 0;
+            }
             catch { cartCount = 0; }
         }
     }
@@ -130,7 +141,7 @@
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
         <div class="humberger__menu__logo"><a href="/"><img src="/img/logo4.png" alt="Tech Store"></a></div>
-        <div class="humberger__menu__cart"><ul><li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li></ul></div>
+        <div class="humberger__menu__cart"><ul><li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span class="cart-count">@cartCount</span></a></li></ul></div>
         <div class="humberger__menu__widget"><div class="header__top__right__auth">@if (userName != null){
         <a href="#"><i class="fa fa-user"></i> @userName</a>
                 }else
@@ -172,7 +183,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-3"><div class="header__logo"><a href="/"><img src="/img/logo4.png" alt="Tech Store"></a></div></div>
                 <div class="col-lg-6 text-center"><nav class="header__menu"><ul><li class="active"><a href="/">Trang Chủ</a></li><li><a href="/Home/Shop">Cửa Hàng</a></li><li><a href="#">Trang <i class="fa fa-angle-down"></i></a><ul class="header__menu__dropdown"><li><a href="/Home/Cart">Giỏ Hàng</a></li><li><a href="/Home/Checkout">Thanh Toán</a></li><li><a href="/Account/LichSuMuaHang">Đơn hàng</a></li></ul></li></ul></nav></div>
-                <div class="col-lg-3 text-right"><div class="header__cart"><ul><li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span>@cartCount</span></a></li></ul></div></div>
+                <div class="col-lg-3 text-right"><div class="header__cart"><ul><li><a href="/Home/Cart"><i class="fa fa-shopping-bag"></i> <span id="cart-count" class="cart-count">@cartCount</span></a></li></ul></div></div>
             </div>
         </div>
     </header>
