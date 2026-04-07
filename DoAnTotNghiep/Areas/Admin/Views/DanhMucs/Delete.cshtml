@@ -1,0 +1,24 @@
+﻿@model DoAnTotNghiep.Models.DanhMuc
+
+@{
+    ViewData["Title"] = "Xóa danh mục";
+}
+
+<h2 class="mb-4 text-danger">Xóa danh mục</h2>
+
+<div class="alert alert-warning">
+    Bạn có chắc chắn muốn xóa danh mục: <strong>@Model.TenDanhMuc</strong>?
+</div>
+
+<form asp-area="Admin" asp-controller="DanhMucs" asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="MaDanhMuc" />
+
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-area="Admin" asp-controller="DanhMucs" asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>
+
+
+
+Sau đó chạy lại và kiểm tra HTML bằng F12: link phải có `href="/Admin/DanhMucs/..."`.  
+Nếu bạn muốn, mình gửi luôn bản chuyển sang URL cứng (`href="/Admin/DanhMucs/Create"`) để không phụ thuộc Tag Helper.

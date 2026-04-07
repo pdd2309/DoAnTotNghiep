@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // --- 1. PHẦN ĐĂNG KÝ SERVICES ---
 
 builder.Services.AddDbContext<CuaHangCongNgheDBContext>(options =>
@@ -31,6 +32,8 @@ builder.Services.AddSession(options => {
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddAuthorization();
+
 // ĐĂNG KÝ XÁC THỰC (AUTHENTICATION) CHO GOOGLE VÀ FACEBOOK
 builder.Services.AddAuthentication(options =>
 {
@@ -40,6 +43,18 @@ builder.Services.AddAuthentication(options =>
 .AddCookie(options =>
 {
     options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Admin/Account/Login";
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/Admin"))
+        {
+            context.Response.Redirect("/Admin/Account/Login");
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 })
 .AddGoogle(options =>
 {
@@ -75,6 +90,11 @@ app.UseSession();
 // Kích hoạt Authentication (Phải đặt trước Authorization)
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+);
 
 app.MapControllerRoute(
     name: "default",

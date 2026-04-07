@@ -1,0 +1,20 @@
+﻿@model DoAnTotNghiep.Models.DanhMuc
+
+@{
+    ViewData["Title"] = "Thêm danh mục";
+}
+
+<h2 class="mb-4">Thêm danh mục</h2>
+
+<form asp-area="Admin" asp-controller="DanhMucs" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group mb-3">
+        <label asp-for="TenDanhMuc" class="form-label"></label>
+        <input asp-for="TenDanhMuc" class="form-control" />
+        <span asp-validation-for="TenDanhMuc" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-area="Admin" asp-controller="DanhMucs" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>
