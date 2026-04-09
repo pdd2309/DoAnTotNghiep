@@ -21,7 +21,19 @@ public class DanhMucController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DanhMuc>>> GetDanhMucs()
     {
-        var danhMucs = await _context.DanhMucs.ToListAsync();
+        var danhMucs = await _context.DanhMucs
+            .Where(x => x.IsHienThiTrangChu)
+            .OrderBy(x => x.ThuTuHienThi)
+            .ThenBy(x => x.MaDanhMuc)
+            .Select(x => new
+            {
+                maDanhMuc = x.MaDanhMuc,
+                tenDanhMuc = x.TenDanhMuc,
+                hinhAnh = x.HinhAnh,
+                isHienThiTrangChu = x.IsHienThiTrangChu,
+                thuTuHienThi = x.ThuTuHienThi
+            })
+            .ToListAsync();
         return Ok(danhMucs);
     }
 

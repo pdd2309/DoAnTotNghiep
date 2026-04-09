@@ -4,8 +4,8 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Danh s&#225;ch danh m&#7909;c (API)</h6>
-        <button type="button" class="btn btn-primary btn-sm" onclick="createCategory()">Th&#234;m m&#7899;i</button>
+        <h6 class="m-0 font-weight-bold text-primary">Danh sach danh muc (API)</h6>
+        <button type="button" class="btn btn-primary btn-sm" onclick="openCreateModal()">Them moi</button>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -13,8 +13,11 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>T&#234;n danh m&#7909;c</th>
-                        <th>Thao t&#225;c</th>
+                        <th>Ten danh muc</th>
+                        <th>Hinh anh</th>
+                        <th>Thu tu</th>
+                        <th>Trang chu</th>
+                        <th>Thao tac</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -23,103 +26,238 @@
     </div>
 </div>
 
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalTitle">Danh muc</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="categoryId" />
+
+                <div class="form-group">
+                    <label>Ten danh muc</label>
+                    <input type="text" class="form-control" id="tenDanhMuc" />
+                </div>
+
+                <div class="form-group">
+                    <label>Link hinh (tuy chon)</label>
+                    <input type="text" class="form-control" id="hinhAnh" placeholder="/img/categories/cat-1.jpg" />
+                </div>
+
+                <div class="form-group">
+                    <label>Hoac upload hinh moi</label>
+                    <input type="file" class="form-control" id="imageFile" accept="image/*" />
+                </div>
+
+                <div class="form-group">
+                    <label>Thu tu hien thi (nho hon se hien truoc)</label>
+                    <input type="number" class="form-control" id="thuTuHienThi" value="0" />
+                </div>
+
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="isHienThiTrangChu" checked>
+                    <label class="form-check-label" for="isHienThiTrangChu">Hien thi tren trang chu</label>
+                </div>
+
+                <div id="previewWrapper" class="text-center" style="display:none;">
+                    <img id="previewImage" src="" style="max-width:100%;max-height:180px;object-fit:contain;" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Dong</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Luu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        let categoryTable;
+
+        function imageCell(url) {
+            if (!url) return '<span class="text-muted">No image</span>';
+            return `<img src="${url}" style="width:90px;height:60px;object-fit:cover;" />`;
+        }
+
+        function showPreview(url) {
+            if (!url) {
+                $('#previewWrapper').hide();
+                $('#previewImage').attr('src', '');
+                return;
+            }
+
+            $('#previewImage').attr('src', url);
+            $('#previewWrapper').show();
+        }
+
         async function loadCategories() {
             const res = await fetch('/api/admin/categories');
-            if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c danh m\u1EE5c');
+            if (!res.ok) throw new Error('Cannot load categories');
             return await res.json();
         }
 
-        async function createCategory() {
-            const name = prompt('Nh\u1EADp t\u00EAn danh m\u1EE5c m\u1EDBi:');
-            if (!name || !name.trim()) return;
-
-            const res = await fetch('/api/admin/categories', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tenDanhMuc: name.trim() })
-            });
-
-            if (!res.ok) {
-                alert('T\u1EA1o danh m\u1EE5c th\u1EA5t b\u1EA1i.');
-                return;
-            }
-
-            location.reload();
+        function openCreateModal() {
+            $('#categoryModalTitle').text('Them danh muc');
+            $('#categoryId').val('');
+            $('#tenDanhMuc').val('');
+            $('#hinhAnh').val('');
+            $('#imageFile').val('');
+            $('#thuTuHienThi').val(0);
+            $('#isHienThiTrangChu').prop('checked', true);
+            showPreview('');
+            $('#categoryModal').modal('show');
         }
 
-        async function editCategory(id, currentName) {
-            const name = prompt('S\u1EEDa t\u00EAn danh m\u1EE5c:', currentName || '');
-            if (!name || !name.trim()) return;
-
-            const res = await fetch(`/api/admin/categories/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ maDanhMuc: id, tenDanhMuc: name.trim() })
-            });
-
+        async function openEditModal(id) {
+            const res = await fetch(`/api/admin/categories/${id}`);
             if (!res.ok) {
-                alert('C\u1EADp nh\u1EADt danh m\u1EE5c th\u1EA5t b\u1EA1i.');
+                alert('Khong tai duoc danh muc');
                 return;
             }
 
-            location.reload();
+            const item = await res.json();
+            $('#categoryModalTitle').text('Sua danh muc #' + item.maDanhMuc);
+            $('#categoryId').val(item.maDanhMuc);
+            $('#tenDanhMuc').val(item.tenDanhMuc || '');
+            $('#hinhAnh').val(item.hinhAnh || '');
+            $('#imageFile').val('');
+            $('#thuTuHienThi').val(item.thuTuHienThi || 0);
+            $('#isHienThiTrangChu').prop('checked', !!item.isHienThiTrangChu);
+            showPreview(item.hinhAnh || '');
+            $('#categoryModal').modal('show');
+        }
+
+        async function saveCategory() {
+            const id = $('#categoryId').val();
+            const tenDanhMuc = ($('#tenDanhMuc').val() || '').trim();
+            const hinhAnh = ($('#hinhAnh').val() || '').trim();
+            const thuTuHienThi = parseInt($('#thuTuHienThi').val() || '0', 10);
+            const isHienThiTrangChu = $('#isHienThiTrangChu').is(':checked');
+
+            if (!tenDanhMuc) {
+                alert('Vui long nhap ten danh muc.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('tenDanhMuc', tenDanhMuc);
+            formData.append('hinhAnh', hinhAnh);
+            formData.append('thuTuHienThi', isNaN(thuTuHienThi) ? 0 : thuTuHienThi);
+            formData.append('isHienThiTrangChu', isHienThiTrangChu);
+
+            const imageInput = document.getElementById('imageFile');
+            if (imageInput.files.length > 0) {
+                formData.append('imageFile', imageInput.files[0]);
+            }
+
+            const isEdit = !!id;
+            const url = isEdit ? `/api/admin/categories/${id}` : '/api/admin/categories';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const res = await fetch(url, { method, body: formData });
+            if (!res.ok) {
+                const err = await res.text();
+                alert('Luu that bai: ' + err);
+                return;
+            }
+
+            $('#categoryModal').modal('hide');
+            await bindCategoryTable();
         }
 
         async function deleteCategory(id) {
-            const ok = confirm('B\u1EA1n ch\u1EAFc ch\u1EAFn mu\u1ED1n x\u00F3a danh m\u1EE5c n\u00E0y?');
+            const ok = confirm('Ban chac chan muon xoa danh muc nay?');
             if (!ok) return;
 
             const res = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' });
             if (!res.ok) {
-                alert('X\u00F3a danh m\u1EE5c th\u1EA5t b\u1EA1i. C\u00F3 th\u1EC3 danh m\u1EE5c \u0111ang \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng.');
+                alert('Xoa that bai. Co the danh muc dang duoc su dung.');
                 return;
             }
 
-            location.reload();
+            await bindCategoryTable();
         }
+
+        async function bindCategoryTable() {
+            const categories = await loadCategories();
+
+            if (categoryTable) {
+                categoryTable.clear();
+                categoryTable.rows.add(categories).draw();
+                return;
+            }
+
+            categoryTable = $('#categoryTable').DataTable({
+                data: categories,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columns: [
+                    { data: 'maDanhMuc' },
+                    { data: 'tenDanhMuc' },
+                    {
+                        data: 'hinhAnh',
+                        orderable: false,
+                        render: function (d) { return imageCell(d); }
+                    },
+                    { data: 'thuTuHienThi' },
+                    {
+                        data: 'isHienThiTrangChu',
+                        render: function (d) {
+                            return d
+                                ? '<span class="badge badge-success">Hien</span>'
+                                : '<span class="badge badge-secondary">An</span>';
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            return `
+                                <button class="btn btn-warning btn-sm mr-1" onclick="openEditModal(${row.maDanhMuc})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCategory(${row.maDanhMuc})"><i class="fas fa-trash"></i></button>
+                            `;
+                        }
+                    }
+                ],
+                language: {
+                    search: 'Tim kiem:',
+                    lengthMenu: 'Hien thi _MENU_ dong',
+                    info: 'Hien thi _START_ den _END_ cua _TOTAL_ danh muc',
+                    infoEmpty: 'Khong co du lieu',
+                    zeroRecords: 'Khong tim thay danh muc',
+                    paginate: {
+                        first: 'Dau',
+                        last: 'Cuoi',
+                        next: 'Sau',
+                        previous: 'Truoc'
+                    }
+                }
+            });
+        }
+
+        $('#hinhAnh').on('input', function () {
+            const url = ($(this).val() || '').trim();
+            showPreview(url);
+        });
+
+        $('#imageFile').on('change', function () {
+            if (this.files && this.files[0]) {
+                const tempUrl = URL.createObjectURL(this.files[0]);
+                showPreview(tempUrl);
+            }
+        });
 
         $(async function () {
             try {
-                const categories = await loadCategories();
-
-                $('#categoryTable').DataTable({
-                    data: categories,
-                    pageLength: 10,
-                    order: [[0, 'desc']],
-                    columns: [
-                        { data: 'maDanhMuc' },
-                        { data: 'tenDanhMuc' },
-                        {
-                            data: null,
-                            orderable: false,
-                            render: function (data, type, row) {
-                                const safeName = (row.tenDanhMuc || '').replace(/'/g, "\\'");
-                                return `
-                                    <button class="btn btn-warning btn-sm mr-1" onclick="editCategory(${row.maDanhMuc}, '${safeName}')"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteCategory(${row.maDanhMuc})"><i class="fas fa-trash"></i></button>
-                                `;
-                            }
-                        }
-                    ],
-                    language: {
-                        search: 'T\u00ECm ki\u1EBFm:',
-                        lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
-                        info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ danh m\u1EE5c',
-                        infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
-                        zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y danh m\u1EE5c',
-                        paginate: {
-                            first: '\u0110\u1EA7u',
-                            last: 'Cu\u1ED1i',
-                            next: 'Sau',
-                            previous: 'Tr\u01B0\u1EDBc'
-                        }
-                    }
-                });
+                await bindCategoryTable();
             } catch (e) {
                 console.error(e);
-                alert('Kh\u00F4ng th\u1EC3 t\u1EA3i danh m\u1EE5c t\u1EEB API admin.');
+                alert('Khong the tai danh sach danh muc.');
             }
         });
     </script>

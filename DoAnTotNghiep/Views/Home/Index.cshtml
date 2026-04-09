@@ -1,7 +1,12 @@
-﻿@{
+﻿@using DoAnTotNghiep.Models
+
+@{
     // Kết nối với khung Layout chung
     ViewData["Title"] = "Trang Chủ";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var heroBanner = ViewBag.HeroBanner as Banner;
+    var bottomBanners = ViewBag.BottomBanners as List<Banner> ?? new List<Banner>();
 }
 
 <section class="hero">
@@ -44,15 +49,32 @@
                     </div>
                 </div>
 
-                @* Banner quảng cáo chính của trang chủ *@
-                <div class="hero__item set-bg" data-setbg="/img/hero/banner.jpg" style="background-image: url('/img/hero/banner.jpg');">
-                    <div class="hero__text">
-                        <span>CÔNG NGHỆ MỚI</span>
-                        <h2>Sản Phẩm <br />Chất Lượng Cao</h2>
-                        <p>Giao hàng nhanh - Hàng Chính Hãng 100%</p>
-                        <a href="/Home/Shop" class="primary-btn">MUA NGAY</a>
+                @* Banner quảng cáo chính của trang chủ (từ DB) *@
+                @if (heroBanner != null)
+                {
+                    var heroImage = string.IsNullOrWhiteSpace(heroBanner.ImageUrl) ? "/img/hero/banner.jpg" : heroBanner.ImageUrl;
+                    var heroLink = string.IsNullOrWhiteSpace(heroBanner.LinkUrl) ? "/Home/Shop" : heroBanner.LinkUrl;
+
+                    <div class="hero__item set-bg" data-setbg="@heroImage" style="background-image: url('@heroImage');">
+                        <div class="hero__text">
+                            <span>@(heroBanner.SubTitle ?? "CÔNG NGHỆ MỚI")</span>
+                            <h2>@(heroBanner.Title ?? "Sản Phẩm")</h2>
+                            <p>@(heroBanner.Description ?? "Giao hàng nhanh - Hàng Chính Hãng 100%")</p>
+                            <a href="@heroLink" class="primary-btn">MUA NGAY</a>
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="hero__item set-bg" data-setbg="/img/hero/banner.jpg" style="background-image: url('/img/hero/banner.jpg');">
+                        <div class="hero__text">
+                            <span>CÔNG NGHỆ MỚI</span>
+                            <h2>Sản Phẩm <br />Chất Lượng Cao</h2>
+                            <p>Giao hàng nhanh - Hàng Chính Hãng 100%</p>
+                            <a href="/Home/Shop" class="primary-btn">MUA NGAY</a>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -94,16 +116,35 @@
 <div class="banner">
     <div class="container">
         <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="banner__pic">
-                    <img src="/img/banner/banner-1.jpg" alt="Banner 1">
+            @if (bottomBanners.Any())
+            {
+                foreach (var banner in bottomBanners)
+                {
+                    var imageUrl = string.IsNullOrWhiteSpace(banner.ImageUrl) ? "/img/banner/banner-1.jpg" : banner.ImageUrl;
+                    var linkUrl = string.IsNullOrWhiteSpace(banner.LinkUrl) ? "/Home/Shop" : banner.LinkUrl;
+
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="banner__pic">
+                            <a href="@linkUrl">
+                                <img src="@imageUrl" alt="@(banner.Title ?? "Banner")">
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="banner__pic">
+                        <img src="/img/banner/banner-1.jpg" alt="Banner 1">
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="banner__pic">
-                    <img src="/img/banner/banner-2.jpg" alt="Banner 2">
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="banner__pic">
+                        <img src="/img/banner/banner-2.jpg" alt="Banner 2">
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
 </div>

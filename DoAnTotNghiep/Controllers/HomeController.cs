@@ -1,11 +1,33 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using DoAnTotNghiep.Models;
 
 namespace DoAnTotNghiep.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly CuaHangCongNgheDBContext _db;
+
+        public HomeController(CuaHangCongNgheDBContext db)
+        {
+            _db = db;
+        }
+
         public IActionResult Index()
         {
+            var activeBanners = _db.Banners
+                .Where(x => x.IsActive)
+                .OrderBy(x => x.Position)
+                .ThenBy(x => x.DisplayOrder)
+                .AsNoTracking()
+                .ToList();
+
+            ViewBag.HeroBanner = activeBanners.FirstOrDefault(x => x.Position == "Hero");
+            ViewBag.BottomBanners = activeBanners
+                .Where(x => x.Position == "Bottom")
+                .Take(2)
+                .ToList();
+
             return View();
         }
         public IActionResult Shop(string searchString)

@@ -2,7 +2,18 @@
     try {
         const response = await fetch('/api/DanhMuc');
         if (!response.ok) throw new Error('Lỗi API');
-        const categories = await response.json();
+        let categories = await response.json();
+
+        categories = (categories || [])
+            .filter(c => {
+                const visible = c.isHienThiTrangChu ?? c.IsHienThiTrangChu;
+                return visible === undefined ? true : !!visible;
+            })
+            .sort((a, b) => {
+                const aOrder = (a.thuTuHienThi ?? a.ThuTuHienThi ?? 0);
+                const bOrder = (b.thuTuHienThi ?? b.ThuTuHienThi ?? 0);
+                return aOrder - bOrder;
+            });
 
         // 1. Đổ dữ liệu vào thanh menu dọc (Hero)
         renderHeroCategories(categories);
@@ -20,15 +31,18 @@ function renderSliderCategories(categories) {
     if (!slider) return;
 
     // Xóa slider cũ nếu có để tránh trùng lặp
-    $(slider).owlCarousel('destroy');
+    if ($(slider).hasClass('owl-loaded')) {
+        $(slider).trigger('destroy.owl.carousel');
+        $(slider).removeClass('owl-loaded');
+        $(slider).find('.owl-stage-outer').children().unwrap();
+    }
 
     slider.innerHTML = categories.map(cat => {
         const id = cat.maDanhMuc || cat.MaDanhMuc;
         const name = cat.tenDanhMuc || cat.TenDanhMuc;
 
-        // Tạo hình ảnh mặc định theo tên hoặc ID nếu DB ông chưa có cột hình cho danh mục
-        // Template Ogani dùng ảnh 270x270 cho chỗ này
-        let img = `/img/categories/cat-${id % 5 + 1}.jpg`;
+        // Nếu DB có ảnh thì ưu tiên ảnh DB, không thì fallback ảnh mặc định
+        let img = cat.hinhAnh || cat.HinhAnh || `/img/categories/cat-${id % 5 + 1}.jpg`;
 
         return `
             <div class="col-lg-3">

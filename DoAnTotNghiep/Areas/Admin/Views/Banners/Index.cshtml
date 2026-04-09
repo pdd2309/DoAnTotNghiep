@@ -1,0 +1,230 @@
+@{
+    ViewData["Title"] = "Quan ly banner";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Quan ly banner trang chu (API)</h6>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Them banner</button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="bannerTable" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vi tri</th>
+                        <th>Tieu de</th>
+                        <th>Hinh anh</th>
+                        <th>Thu tu</th>
+                        <th>Hien thi</th>
+                        <th>Thao tac</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="bannerModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bannerModalTitle">Banner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="bannerId" />
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Vi tri</label>
+                        <select class="form-control" id="position">
+                            <option value="Hero">Hero</option>
+                            <option value="Bottom">Bottom</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Thu tu</label>
+                        <input type="number" class="form-control" id="displayOrder" value="0" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tieu de</label>
+                    <input type="text" class="form-control" id="title" />
+                </div>
+
+                <div class="form-group">
+                    <label>Tieu de phu</label>
+                    <input type="text" class="form-control" id="subTitle" />
+                </div>
+
+                <div class="form-group">
+                    <label>Mo ta</label>
+                    <textarea class="form-control" id="description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Link URL</label>
+                    <input type="text" class="form-control" id="linkUrl" placeholder="/Home/Shop" />
+                </div>
+
+                <div class="form-group">
+                    <label>Hinh anh</label>
+                    <input type="file" class="form-control" id="imageFile" accept="image/*" />
+                    <small class="text-muted">Khi sua, bo trong neu khong muon doi anh.</small>
+                </div>
+
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="isActive" checked>
+                    <label class="form-check-label" for="isActive">Hien thi tren trang chu</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Dong</button>
+                <button type="button" class="btn btn-primary" onclick="saveBanner()">Luu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let bannerTable;
+
+        function imageHtml(url) {
+            if (!url) return '';
+            return `<img src="${url}" style="width:120px;height:60px;object-fit:cover;" />`;
+        }
+
+        function openCreateModal() {
+            $('#bannerModalTitle').text('Them banner');
+            $('#bannerId').val('');
+            $('#position').val('Hero');
+            $('#displayOrder').val(0);
+            $('#title').val('');
+            $('#subTitle').val('');
+            $('#description').val('');
+            $('#linkUrl').val('');
+            $('#imageFile').val('');
+            $('#isActive').prop('checked', true);
+            $('#bannerModal').modal('show');
+        }
+
+        async function openEditModal(id) {
+            const res = await fetch(`/api/admin/banners/${id}`);
+            if (!res.ok) {
+                alert('Khong tai duoc banner.');
+                return;
+            }
+
+            const b = await res.json();
+            $('#bannerModalTitle').text('Sua banner #' + b.id);
+            $('#bannerId').val(b.id);
+            $('#position').val(b.position || 'Hero');
+            $('#displayOrder').val(b.displayOrder || 0);
+            $('#title').val(b.title || '');
+            $('#subTitle').val(b.subTitle || '');
+            $('#description').val(b.description || '');
+            $('#linkUrl').val(b.linkUrl || '');
+            $('#imageFile').val('');
+            $('#isActive').prop('checked', !!b.isActive);
+            $('#bannerModal').modal('show');
+        }
+
+        async function saveBanner() {
+            const id = $('#bannerId').val();
+            const formData = new FormData();
+
+            formData.append('position', $('#position').val());
+            formData.append('displayOrder', $('#displayOrder').val() || 0);
+            formData.append('title', $('#title').val());
+            formData.append('subTitle', $('#subTitle').val());
+            formData.append('description', $('#description').val());
+            formData.append('linkUrl', $('#linkUrl').val());
+            formData.append('isActive', $('#isActive').is(':checked'));
+
+            const imageInput = document.getElementById('imageFile');
+            if (imageInput.files.length > 0) {
+                formData.append('imageFile', imageInput.files[0]);
+            }
+
+            const isEdit = !!id;
+            const url = isEdit ? `/api/admin/banners/${id}` : '/api/admin/banners';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const res = await fetch(url, { method, body: formData });
+            if (!res.ok) {
+                const err = await res.text();
+                alert('Luu banner that bai: ' + err);
+                return;
+            }
+
+            $('#bannerModal').modal('hide');
+            await loadBanners();
+        }
+
+        async function deleteBanner(id) {
+            if (!confirm('Ban chac chan muon xoa banner nay?')) return;
+
+            const res = await fetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                alert('Xoa that bai.');
+                return;
+            }
+
+            await loadBanners();
+        }
+
+        async function loadBanners() {
+            const res = await fetch('/api/admin/banners');
+            if (!res.ok) throw new Error('Khong tai duoc danh sach banner');
+            const items = await res.json();
+
+            if (bannerTable) {
+                bannerTable.clear();
+                bannerTable.rows.add(items).draw();
+                return;
+            }
+
+            bannerTable = $('#bannerTable').DataTable({
+                data: items,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columns: [
+                    { data: 'id' },
+                    { data: 'position' },
+                    { data: 'title', defaultContent: '' },
+                    { data: 'imageUrl', render: d => imageHtml(d), orderable: false },
+                    { data: 'displayOrder' },
+                    {
+                        data: 'isActive',
+                        render: d => d ? '<span class="badge badge-success">On</span>' : '<span class="badge badge-secondary">Off</span>'
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (d, t, row) {
+                            return `
+                                <button class="btn btn-warning btn-sm mr-1" onclick="openEditModal(${row.id})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteBanner(${row.id})"><i class="fas fa-trash"></i></button>
+                            `;
+                        }
+                    }
+                ]
+            });
+        }
+
+        $(async function () {
+            try {
+                await loadBanners();
+            } catch (e) {
+                console.error(e);
+                alert('Khong the tai danh sach banner.');
+            }
+        });
+    </script>
+}

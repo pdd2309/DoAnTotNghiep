@@ -11,5 +11,11 @@ public partial class DanhMuc
 
     public string TenDanhMuc { get; set; }
 
+    public string HinhAnh { get; set; }
+
+    public bool IsHienThiTrangChu { get; set; }
+
+    public int ThuTuHienThi { get; set; }
+
     public virtual ICollection<SanPham> SanPhams { get; set; } = new List<SanPham>();
 }

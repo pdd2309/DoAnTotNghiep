@@ -15,6 +15,8 @@ public partial class CuaHangCongNgheDBContext : DbContext
 
     public virtual DbSet<BaiViet> BaiViets { get; set; }
 
+    public virtual DbSet<Banner> Banners { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<CartItem> CartItems { get; set; }
@@ -50,6 +52,30 @@ public partial class CuaHangCongNgheDBContext : DbContext
                 .HasColumnType("datetime");
             entity.Property(e => e.TacGia).HasMaxLength(100);
             entity.Property(e => e.TieuDe).HasMaxLength(250);
+        });
+
+        modelBuilder.Entity<Banner>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Banner");
+
+            entity.ToTable("Banner");
+
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.SubTitle).HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.ImageUrl)
+                .IsRequired()
+                .HasMaxLength(500);
+            entity.Property(e => e.LinkUrl).HasMaxLength(500);
+            entity.Property(e => e.Position)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Hero");
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
         });
 
         modelBuilder.Entity<Cart>(entity =>
@@ -118,6 +144,11 @@ public partial class CuaHangCongNgheDBContext : DbContext
             entity.HasKey(e => e.MaDanhMuc).HasName("PK__DanhMuc__B37508871E5588E5");
 
             entity.ToTable("DanhMuc");
+
+            entity.Property(e => e.HinhAnh).HasMaxLength(500);
+            entity.Property(e => e.IsHienThiTrangChu).HasDefaultValue(true);
+
+            entity.Property(e => e.ThuTuHienThi).HasDefaultValue(0);
 
             entity.Property(e => e.TenDanhMuc)
                 .IsRequired()
