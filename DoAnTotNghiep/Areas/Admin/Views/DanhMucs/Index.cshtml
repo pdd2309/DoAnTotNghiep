@@ -1,65 +1,126 @@
-﻿@model IEnumerable<DoAnTotNghiep.Models.DanhMuc>
-
 @{
-    ViewData["Title"] = "Quản lý Danh mục";
+    ViewData["Title"] = "Quan ly danh muc";
 }
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary lang" data-vi="Danh sách danh mục" data-en="Category List">Danh sách danh mục</h6>
-        <a asp-area="Admin" asp-controller="DanhMucs" asp-action="Create" class="btn btn-primary btn-sm lang" data-vi="Thêm mới" data-en="Add New">Thêm mới</a>
+        <h6 class="m-0 font-weight-bold text-primary">Danh s&#225;ch danh m&#7909;c (API)</h6>
+        <button type="button" class="btn btn-primary btn-sm" onclick="createCategory()">Th&#234;m m&#7899;i</button>
     </div>
-
-@section Scripts {
-    <script>
-        $(function () {
-            $('#categoryTable').DataTable({
-                pageLength: 10,
-                order: [[0, 'desc']],
-                columnDefs: [
-                    { orderable: false, targets: [2] }
-                ],
-                language: {
-                    search: 'Tìm kiếm:',
-                    lengthMenu: 'Hiển thị _MENU_ dòng',
-                    info: 'Hiển thị _START_ đến _END_ của _TOTAL_ danh mục',
-                    infoEmpty: 'Không có dữ liệu',
-                    zeroRecords: 'Không tìm thấy danh mục',
-                    paginate: {
-                        first: 'Đầu',
-                        last: 'Cuối',
-                        next: 'Sau',
-                        previous: 'Trước'
-                    }
-                }
-            });
-        });
-    </script>
-}
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="categoryTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th class="lang" data-vi="Tên danh mục" data-en="Category Name">Tên danh mục</th>
-                        <th class="lang" data-vi="Thao tác" data-en="Actions">Thao tác</th>
+                        <th>T&#234;n danh m&#7909;c</th>
+                        <th>Thao t&#225;c</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.MaDanhMuc</td>
-                            <td>@item.TenDanhMuc</td>
-                            <td>
-                                <a asp-area="Admin" asp-controller="DanhMucs" asp-action="Edit" asp-route-id="@item.MaDanhMuc" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
-                                <a asp-area="Admin" asp-controller="DanhMucs" asp-action="Delete" asp-route-id="@item.MaDanhMuc" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function loadCategories() {
+            const res = await fetch('/api/admin/categories');
+            if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c danh m\u1EE5c');
+            return await res.json();
+        }
+
+        async function createCategory() {
+            const name = prompt('Nh\u1EADp t\u00EAn danh m\u1EE5c m\u1EDBi:');
+            if (!name || !name.trim()) return;
+
+            const res = await fetch('/api/admin/categories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tenDanhMuc: name.trim() })
+            });
+
+            if (!res.ok) {
+                alert('T\u1EA1o danh m\u1EE5c th\u1EA5t b\u1EA1i.');
+                return;
+            }
+
+            location.reload();
+        }
+
+        async function editCategory(id, currentName) {
+            const name = prompt('S\u1EEDa t\u00EAn danh m\u1EE5c:', currentName || '');
+            if (!name || !name.trim()) return;
+
+            const res = await fetch(`/api/admin/categories/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ maDanhMuc: id, tenDanhMuc: name.trim() })
+            });
+
+            if (!res.ok) {
+                alert('C\u1EADp nh\u1EADt danh m\u1EE5c th\u1EA5t b\u1EA1i.');
+                return;
+            }
+
+            location.reload();
+        }
+
+        async function deleteCategory(id) {
+            const ok = confirm('B\u1EA1n ch\u1EAFc ch\u1EAFn mu\u1ED1n x\u00F3a danh m\u1EE5c n\u00E0y?');
+            if (!ok) return;
+
+            const res = await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                alert('X\u00F3a danh m\u1EE5c th\u1EA5t b\u1EA1i. C\u00F3 th\u1EC3 danh m\u1EE5c \u0111ang \u0111\u01B0\u1EE3c s\u1EED d\u1EE5ng.');
+                return;
+            }
+
+            location.reload();
+        }
+
+        $(async function () {
+            try {
+                const categories = await loadCategories();
+
+                $('#categoryTable').DataTable({
+                    data: categories,
+                    pageLength: 10,
+                    order: [[0, 'desc']],
+                    columns: [
+                        { data: 'maDanhMuc' },
+                        { data: 'tenDanhMuc' },
+                        {
+                            data: null,
+                            orderable: false,
+                            render: function (data, type, row) {
+                                const safeName = (row.tenDanhMuc || '').replace(/'/g, "\\'");
+                                return `
+                                    <button class="btn btn-warning btn-sm mr-1" onclick="editCategory(${row.maDanhMuc}, '${safeName}')"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteCategory(${row.maDanhMuc})"><i class="fas fa-trash"></i></button>
+                                `;
+                            }
+                        }
+                    ],
+                    language: {
+                        search: 'T\u00ECm ki\u1EBFm:',
+                        lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
+                        info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ danh m\u1EE5c',
+                        infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
+                        zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y danh m\u1EE5c',
+                        paginate: {
+                            first: '\u0110\u1EA7u',
+                            last: 'Cu\u1ED1i',
+                            next: 'Sau',
+                            previous: 'Tr\u01B0\u1EDBc'
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Kh\u00F4ng th\u1EC3 t\u1EA3i danh m\u1EE5c t\u1EEB API admin.');
+            }
+        });
+    </script>
+}

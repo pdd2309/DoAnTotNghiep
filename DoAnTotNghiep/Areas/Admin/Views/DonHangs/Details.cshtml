@@ -1,15 +1,10 @@
-@model DoAnTotNghiep.Models.DonHang
-
 @{
-    ViewData["Title"] = "Chi ti\u1EBFt \u0111\u01A1n h\u00E0ng";
-
-    var customerName = !string.IsNullOrWhiteSpace(Model.HoTen)
-        ? Model.HoTen
-        : (Model.MaNguoiDungNavigation?.HoTen ?? Model.MaNguoiDungNavigation?.TenDangNhap ?? "N/A");
+    ViewData["Title"] = "Chi tiet don hang";
+    var orderId = (int)ViewBag.OrderId;
 }
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Chi ti&#7871;t &#273;&#417;n h&#224;ng #@Model.MaDonHang</h1>
+    <h1 class="h3 mb-0 text-gray-800">Chi ti&#7871;t &#273;&#417;n h&#224;ng #@orderId</h1>
     <a asp-area="Admin" asp-controller="DonHangs" asp-action="Index" class="btn btn-secondary btn-sm">
         <i class="fas fa-arrow-left"></i> Quay l&#7841;i
     </a>
@@ -21,15 +16,7 @@
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Th&#244;ng tin kh&#225;ch h&#224;ng</h6>
             </div>
-            <div class="card-body">
-                <p><strong>H&#7885; t&#234;n:</strong> @customerName</p>
-                <p><strong>S&#272;T:</strong> @Model.SoDienThoai</p>
-                <p><strong>Email:</strong> @Model.Email</p>
-                <p><strong>&#272;&#7883;a ch&#7881;:</strong> @Model.DiaChiGiaoHang</p>
-                <p><strong>Ng&#224;y &#273;&#7863;t:</strong> @(Model.NgayDat?.ToString("dd/MM/yyyy HH:mm") ?? "")</p>
-                <p><strong>Tr&#7841;ng th&#225;i:</strong> @Model.TrangThai</p>
-                <p><strong>Ghi ch&#250;:</strong> @Model.GhiChu</p>
-            </div>
+            <div class="card-body" id="customerInfo">Dang tai...</div>
         </div>
     </div>
 
@@ -49,25 +36,11 @@
                                 <th>Th&#224;nh ti&#7873;n</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach (var ct in Model.ChiTietDonHangs)
-                            {
-                                var unitPrice = ct.DonGiaLucMua ?? 0;
-                                var quantity = ct.SoLuong ?? 0;
-                                var lineTotal = unitPrice * quantity;
-
-                                <tr>
-                                    <td>@(ct.MaSanPhamNavigation?.TenSanPham ?? $"SP #{ct.MaSanPham}")</td>
-                                    <td>@unitPrice.ToString("N0") &#273;</td>
-                                    <td>@quantity</td>
-                                    <td>@lineTotal.ToString("N0") &#273;</td>
-                                </tr>
-                            }
-                        </tbody>
+                        <tbody id="orderItemsBody"></tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="3" class="text-right">T&#7893;ng c&#7897;ng</th>
-                                <th>@((Model.TongTien ?? 0).ToString("N0")) &#273;</th>
+                                <th id="orderTotal">0 &#273;</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -76,3 +49,58 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const orderId = @orderId;
+
+        function money(v) {
+            return Number(v || 0).toLocaleString('vi-VN') + ' \u0111';
+        }
+
+        function dateTime(v) {
+            if (!v) return '';
+            return new Date(v).toLocaleString('vi-VN');
+        }
+
+        async function loadOrderDetail() {
+            const res = await fetch(`/api/admin/orders/${orderId}`);
+            if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c chi ti\u1EBFt \u0111\u01A1n h\u00E0ng');
+            return await res.json();
+        }
+
+        $(async function () {
+            try {
+                const order = await loadOrderDetail();
+                const customerName = order.hoTen || order.tenDangNhap || 'N/A';
+
+                $('#customerInfo').html(`
+                    <p><strong>H&#7885; t&#234;n:</strong> ${customerName}</p>
+                    <p><strong>S&#272;T:</strong> ${order.soDienThoai || ''}</p>
+                    <p><strong>Email:</strong> ${order.email || ''}</p>
+                    <p><strong>&#272;&#7883;a ch&#7881;:</strong> ${order.diaChiGiaoHang || ''}</p>
+                    <p><strong>Ng&#224;y &#273;&#7863;t:</strong> ${dateTime(order.ngayDat)}</p>
+                    <p><strong>Tr&#7841;ng th&#225;i:</strong> ${order.trangThai || ''}</p>
+                    <p><strong>Ghi ch&#250;:</strong> ${order.ghiChu || ''}</p>
+                `);
+
+                const lines = order.chiTiet || [];
+                const rows = lines.map(x => `
+                    <tr>
+                        <td>${x.tenSanPham || `SP #${x.maSanPham || ''}`}</td>
+                        <td>${money(x.donGia)}</td>
+                        <td>${x.soLuong || 0}</td>
+                        <td>${money(x.thanhTien)}</td>
+                    </tr>
+                `).join('');
+
+                $('#orderItemsBody').html(rows || '<tr><td colspan="4" class="text-center">Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u.</td></tr>');
+                $('#orderTotal').text(money(order.tongTien));
+            } catch (e) {
+                console.error(e);
+                $('#customerInfo').html('<div class="text-danger">Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c th\u00F4ng tin \u0111\u01A1n h\u00E0ng.</div>');
+                $('#orderItemsBody').html('<tr><td colspan="4" class="text-center text-danger">Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c d\u1EEF li\u1EC7u.</td></tr>');
+            }
+        });
+    </script>
+}

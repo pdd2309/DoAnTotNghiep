@@ -1,29 +1,10 @@
-@model IEnumerable<DoAnTotNghiep.Models.DonHang>
-
 @{
-    ViewData["Title"] = "Qu\u1EA3n l\u00FD \u0111\u01A1n h\u00E0ng";
-
-    var statusChoXuLy = "Ch\u1EDD x\u1EED l\u00FD";
-    var statusDangGiao = "\u0110ang giao";
-    var statusDaGiao = "\u0110\u00E3 giao h\u00E0ng";
-    var statusDaHuy = "\u0110\u00E3 h\u1EE7y";
-
-    string GetBadgeClass(string? status)
-    {
-        return status switch
-        {
-            var s when s == statusChoXuLy => "badge badge-warning",
-            var s when s == statusDangGiao => "badge badge-info",
-            var s when s == statusDaGiao => "badge badge-success",
-            var s when s == statusDaHuy => "badge badge-danger",
-            _ => "badge badge-secondary"
-        };
-    }
+    ViewData["Title"] = "Quan ly don hang";
 }
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Danh s&#225;ch &#273;&#417;n h&#224;ng</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Danh s&#225;ch &#273;&#417;n h&#224;ng (API)</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -39,42 +20,7 @@
                         <th>Thao t&#225;c</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        var customerName = !string.IsNullOrWhiteSpace(item.HoTen)
-                            ? item.HoTen
-                            : (item.MaNguoiDungNavigation?.HoTen ?? item.MaNguoiDungNavigation?.TenDangNhap ?? "N/A");
-
-                        <tr>
-                            <td>#@item.MaDonHang</td>
-                            <td>@customerName</td>
-                            <td>@(item.NgayDat?.ToString("dd/MM/yyyy HH:mm") ?? "")</td>
-                            <td>@((item.TongTien ?? 0).ToString("N0")) &#273;</td>
-                            <td>
-                                <span class="@GetBadgeClass(item.TrangThai)">@item.TrangThai</span>
-                            </td>
-                            <td style="min-width: 220px;">
-                                <form asp-area="Admin" asp-controller="DonHangs" asp-action="UpdateStatus" method="post" class="d-flex">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.MaDonHang" />
-                                    <select name="trangThai" class="form-control form-control-sm mr-2">
-                                        <option value="@statusChoXuLy" selected="@(item.TrangThai == statusChoXuLy)">@statusChoXuLy</option>
-                                        <option value="@statusDangGiao" selected="@(item.TrangThai == statusDangGiao)">@statusDangGiao</option>
-                                        <option value="@statusDaGiao" selected="@(item.TrangThai == statusDaGiao)">@statusDaGiao</option>
-                                        <option value="@statusDaHuy" selected="@(item.TrangThai == statusDaHuy)">@statusDaHuy</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary btn-sm">L&#432;u</button>
-                                </form>
-                            </td>
-                            <td>
-                                <a asp-area="Admin" asp-controller="DonHangs" asp-action="Details" asp-route-id="@item.MaDonHang" class="btn btn-info btn-sm">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>
@@ -82,27 +28,121 @@
 
 @section Scripts {
     <script>
-        $(function () {
-            $('#orderTable').DataTable({
-                pageLength: 10,
-                order: [[0, 'desc']],
-                columnDefs: [
-                    { orderable: false, targets: [5, 6] }
-                ],
-                language: {
-                    search: 'T\u00ECm ki\u1EBFm:',
-                    lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
-                    info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ \u0111\u01A1n h\u00E0ng',
-                    infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
-                    zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y \u0111\u01A1n h\u00E0ng',
-                    paginate: {
-                        first: '\u0110\u1EA7u',
-                        last: 'Cu\u1ED1i',
-                        next: 'Sau',
-                        previous: 'Tr\u01B0\u1EDBc'
-                    }
-                }
+        const ORDER_STATUSES = [
+            'Ch\u1EDD x\u1EED l\u00FD',
+            '\u0110ang giao',
+            '\u0110\u00E3 giao h\u00E0ng',
+            '\u0110\u00E3 h\u1EE7y'
+        ];
+
+        function money(v) {
+            return Number(v || 0).toLocaleString('vi-VN') + ' \u0111';
+        }
+
+        function badge(status) {
+            switch (status) {
+                case 'Ch\u1EDD x\u1EED l\u00FD': return 'badge badge-warning';
+                case '\u0110ang giao': return 'badge badge-info';
+                case '\u0110\u00E3 giao h\u00E0ng': return 'badge badge-success';
+                case '\u0110\u00E3 h\u1EE7y': return 'badge badge-danger';
+                default: return 'badge badge-secondary';
+            }
+        }
+
+        async function loadOrders() {
+            const res = await fetch('/api/admin/orders');
+            if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c \u0111\u01A1n h\u00E0ng');
+            return await res.json();
+        }
+
+        async function updateStatus(id) {
+            const select = document.getElementById(`status-${id}`);
+            if (!select) return;
+
+            const res = await fetch(`/api/admin/orders/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ trangThai: select.value })
             });
+
+            if (!res.ok) {
+                alert('C\u1EADp nh\u1EADt tr\u1EA1ng th\u00E1i th\u1EA5t b\u1EA1i.');
+                return;
+            }
+
+            location.reload();
+        }
+
+        $(async function () {
+            try {
+                const orders = await loadOrders();
+
+                $('#orderTable').DataTable({
+                    data: orders,
+                    pageLength: 10,
+                    order: [[0, 'desc']],
+                    columns: [
+                        { data: 'maDonHang', render: d => `#${d}` },
+                        {
+                            data: null,
+                            render: function (d, t, row) {
+                                return row.hoTen || row.tenDangNhap || 'N/A';
+                            }
+                        },
+                        {
+                            data: 'ngayDat',
+                            render: function (d) {
+                                if (!d) return '';
+                                const dt = new Date(d);
+                                return dt.toLocaleString('vi-VN');
+                            }
+                        },
+                        { data: 'tongTien', render: d => money(d) },
+                        {
+                            data: 'trangThai',
+                            render: function (d) {
+                                return `<span class="${badge(d)}">${d || ''}</span>`;
+                            }
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            render: function (d, t, row) {
+                                const options = ORDER_STATUSES.map(s => `<option value="${s}" ${row.trangThai === s ? 'selected' : ''}>${s}</option>`).join('');
+                                return `
+                                    <div class="d-flex" style="min-width:220px;">
+                                        <select id="status-${row.maDonHang}" class="form-control form-control-sm mr-2">${options}</select>
+                                        <button class="btn btn-primary btn-sm" onclick="updateStatus(${row.maDonHang})">L\u01B0u</button>
+                                    </div>
+                                `;
+                            }
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            render: function (d, t, row) {
+                                return `<a href="/Admin/DonHangs/Details/${row.maDonHang}" class="btn btn-info btn-sm"><i class="fas fa-eye"></i></a>`;
+                            }
+                        }
+                    ],
+                    language: {
+                        search: 'T\u00ECm ki\u1EBFm:',
+                        lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
+                        info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ \u0111\u01A1n h\u00E0ng',
+                        infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
+                        zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y \u0111\u01A1n h\u00E0ng',
+                        paginate: {
+                            first: '\u0110\u1EA7u',
+                            last: 'Cu\u1ED1i',
+                            next: 'Sau',
+                            previous: 'Tr\u01B0\u1EDBc'
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Kh\u00F4ng th\u1EC3 t\u1EA3i \u0111\u01A1n h\u00E0ng t\u1EEB API admin.');
+            }
         });
     </script>
 }
