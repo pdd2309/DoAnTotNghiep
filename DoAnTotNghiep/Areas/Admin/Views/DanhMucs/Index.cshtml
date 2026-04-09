@@ -9,9 +9,36 @@
         <h6 class="m-0 font-weight-bold text-primary lang" data-vi="Danh sách danh mục" data-en="Category List">Danh sách danh mục</h6>
         <a asp-area="Admin" asp-controller="DanhMucs" asp-action="Create" class="btn btn-primary btn-sm lang" data-vi="Thêm mới" data-en="Add New">Thêm mới</a>
     </div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#categoryTable').DataTable({
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: [2] }
+                ],
+                language: {
+                    search: 'Tìm kiếm:',
+                    lengthMenu: 'Hiển thị _MENU_ dòng',
+                    info: 'Hiển thị _START_ đến _END_ của _TOTAL_ danh mục',
+                    infoEmpty: 'Không có dữ liệu',
+                    zeroRecords: 'Không tìm thấy danh mục',
+                    paginate: {
+                        first: 'Đầu',
+                        last: 'Cuối',
+                        next: 'Sau',
+                        previous: 'Trước'
+                    }
+                }
+            });
+        });
+    </script>
+}
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-bordered" id="categoryTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         <th>ID</th>

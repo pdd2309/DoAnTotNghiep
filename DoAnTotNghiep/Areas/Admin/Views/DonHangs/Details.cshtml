@@ -1,0 +1,78 @@
+@model DoAnTotNghiep.Models.DonHang
+
+@{
+    ViewData["Title"] = "Chi ti\u1EBFt \u0111\u01A1n h\u00E0ng";
+
+    var customerName = !string.IsNullOrWhiteSpace(Model.HoTen)
+        ? Model.HoTen
+        : (Model.MaNguoiDungNavigation?.HoTen ?? Model.MaNguoiDungNavigation?.TenDangNhap ?? "N/A");
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Chi ti&#7871;t &#273;&#417;n h&#224;ng #@Model.MaDonHang</h1>
+    <a asp-area="Admin" asp-controller="DonHangs" asp-action="Index" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Quay l&#7841;i
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Th&#244;ng tin kh&#225;ch h&#224;ng</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>H&#7885; t&#234;n:</strong> @customerName</p>
+                <p><strong>S&#272;T:</strong> @Model.SoDienThoai</p>
+                <p><strong>Email:</strong> @Model.Email</p>
+                <p><strong>&#272;&#7883;a ch&#7881;:</strong> @Model.DiaChiGiaoHang</p>
+                <p><strong>Ng&#224;y &#273;&#7863;t:</strong> @(Model.NgayDat?.ToString("dd/MM/yyyy HH:mm") ?? "")</p>
+                <p><strong>Tr&#7841;ng th&#225;i:</strong> @Model.TrangThai</p>
+                <p><strong>Ghi ch&#250;:</strong> @Model.GhiChu</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh s&#225;ch s&#7843;n ph&#7849;m</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>S&#7843;n ph&#7849;m</th>
+                                <th>&#272;&#417;n gi&#225;</th>
+                                <th>S&#7889; l&#432;&#7907;ng</th>
+                                <th>Th&#224;nh ti&#7873;n</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ct in Model.ChiTietDonHangs)
+                            {
+                                var unitPrice = ct.DonGiaLucMua ?? 0;
+                                var quantity = ct.SoLuong ?? 0;
+                                var lineTotal = unitPrice * quantity;
+
+                                <tr>
+                                    <td>@(ct.MaSanPhamNavigation?.TenSanPham ?? $"SP #{ct.MaSanPham}")</td>
+                                    <td>@unitPrice.ToString("N0") &#273;</td>
+                                    <td>@quantity</td>
+                                    <td>@lineTotal.ToString("N0") &#273;</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-right">T&#7893;ng c&#7897;ng</th>
+                                <th>@((Model.TongTien ?? 0).ToString("N0")) &#273;</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -9,9 +9,36 @@
         <h6 class="m-0 font-weight-bold text-primary">Danh sách sản phẩm</h6>
         <a asp-area="Admin" asp-controller="SanPhams" asp-action="Create" class="btn btn-primary btn-sm">Thêm mới</a>
     </div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#productTable').DataTable({
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: [4, 5] }
+                ],
+                language: {
+                    search: 'Tìm kiếm:',
+                    lengthMenu: 'Hiển thị _MENU_ dòng',
+                    info: 'Hiển thị _START_ đến _END_ của _TOTAL_ sản phẩm',
+                    infoEmpty: 'Không có dữ liệu',
+                    zeroRecords: 'Không tìm thấy sản phẩm',
+                    paginate: {
+                        first: 'Đầu',
+                        last: 'Cuối',
+                        next: 'Sau',
+                        previous: 'Trước'
+                    }
+                }
+            });
+        });
+    </script>
+}
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered" width="100%">
+            <table class="table table-bordered" id="productTable" width="100%">
                 <thead>
                     <tr>
                         <th>ID</th>
