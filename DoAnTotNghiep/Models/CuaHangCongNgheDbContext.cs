@@ -13,7 +13,7 @@ public partial class CuaHangCongNgheDBContext : DbContext
     {
     }
 
-    public virtual DbSet<BaiViet> BaiViets { get; set; }
+
 
     public virtual DbSet<Banner> Banners { get; set; }
 
@@ -37,22 +37,11 @@ public partial class CuaHangCongNgheDBContext : DbContext
 
     public virtual DbSet<SanPham> SanPhams { get; set; }
 
+    public virtual DbSet<Voucher> Vouchers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<BaiViet>(entity =>
-        {
-            entity.HasKey(e => e.MaBv).HasName("PK__BaiViet__27247595B9AFDF46");
-
-            entity.ToTable("BaiViet");
-
-            entity.Property(e => e.MaBv).HasColumnName("MaBV");
-            entity.Property(e => e.HinhAnh).HasMaxLength(500);
-            entity.Property(e => e.NgayDang)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.TacGia).HasMaxLength(100);
-            entity.Property(e => e.TieuDe).HasMaxLength(250);
-        });
+      
 
         modelBuilder.Entity<Banner>(entity =>
         {
@@ -260,6 +249,42 @@ public partial class CuaHangCongNgheDBContext : DbContext
             entity.HasOne(d => d.MaDanhMucNavigation).WithMany(p => p.SanPhams)
                 .HasForeignKey(d => d.MaDanhMuc)
                 .HasConstraintName("FK__SanPham__MaDanhM__5070F446");
+        });
+
+        modelBuilder.Entity<Voucher>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Voucher");
+
+            entity.ToTable("Voucher");
+
+            entity.HasIndex(e => e.Code, "UQ_Voucher_Code").IsUnique();
+
+            entity.Property(e => e.Code)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Name).HasMaxLength(200);
+
+            entity.Property(e => e.DiscountType)
+                .IsRequired()
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Amount");
+
+            entity.Property(e => e.DiscountValue).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MaxDiscountAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.MinOrderAmount).HasColumnType("decimal(18, 2)");
+
+            entity.Property(e => e.Quantity).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
         });
 
         OnModelCreatingPartial(modelBuilder);

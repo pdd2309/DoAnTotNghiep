@@ -3,6 +3,27 @@
     ViewData["Title"] = "Thanh Toán";
 }
 
+<style>
+    .payment-option {
+        display: block;
+        border: 1px solid #e1e1e1;
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all .2s;
+    }
+
+    .payment-option.active {
+        border-color: #7fad39;
+        background: #f6fff0;
+    }
+
+    .payment-option .payment-label {
+        font-weight: 600;
+    }
+</style>
+
 <section class="breadcrumb-section set-bg" data-setbg="/img/breadcrumb.jpg">
     <div class="container">
         <div class="row">
@@ -59,8 +80,33 @@
                             <div class="checkout__order__products">Sản Phẩm <span>Tổng Cộng</span></div>
                             <ul id="checkout-list">
                             </ul>
+                            <div style="margin-bottom: 12px;">
+                                <div class="input-group">
+                                    <input type="text" id="voucher-code" class="form-control" placeholder="Nhập mã giảm giá">
+                                    <div class="input-group-append">
+                                        <button type="button" id="btn-apply-voucher" class="btn btn-outline-success">Áp dụng</button>
+                                    </div>
+                                </div>
+                                <small id="voucher-message" style="display:block; margin-top:6px;"></small>
+                            </div>
                             <div class="checkout__order__subtotal">Tạm Tính <span id="checkout-subtotal">0đ</span></div>
+                            <div class="checkout__order__subtotal">Giảm giá <span id="checkout-discount">0đ</span></div>
                             <div class="checkout__order__total">Tổng Cộng <span id="checkout-total" style="color: #dd2222; font-weight: bold; font-size: 20px;">0đ</span></div>
+
+                            <div class="checkout__input__checkbox" style="margin-bottom: 10px;">
+                                <label class="payment-option active">
+                                    <input type="radio" name="payment-method" value="COD" checked>
+                                    <span class="checkmark"></span>
+                                    <span class="payment-label">Thanh toán khi nhận hàng (COD)</span>
+                                </label>
+                            </div>
+                            <div class="checkout__input__checkbox" style="margin-bottom: 15px;">
+                                <label class="payment-option">
+                                    <input type="radio" name="payment-method" value="VNPAY">
+                                    <span class="checkmark"></span>
+                                    <span class="payment-label">Thanh toán VNPay</span>
+                                </label>
+                            </div>
 
                             <button type="button" id="btn-place-order" class="site-btn">ĐẶT HÀNG NGAY</button>
                         </div>

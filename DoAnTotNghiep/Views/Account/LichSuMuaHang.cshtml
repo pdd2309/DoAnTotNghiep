@@ -2,6 +2,23 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Lịch sử mua hàng";
+
+    string NormalizeTrangThai(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return "Chờ xử lý";
+        var s = raw.Trim().ToLowerInvariant();
+
+        if (s.Contains("hủy") || s.Contains("huy")) return "Đã hủy";
+        if (s.Contains("giao"))
+        {
+            if (s.Contains("đang") || s.Contains("dang")) return "Đang giao";
+            return "Đã giao hàng";
+        }
+
+        if (s.Contains("xử") || s.Contains("xu") || s.Contains("chờ") || s.Contains("cho")) return "Chờ xử lý";
+        if (s.Contains("thanh toán") || s.Contains("thanh toan")) return "Đã thanh toán";
+        return raw;
+    }
 }
 
 <section class="breadcrumb-section" style="background-color: #7fad39; padding: 20px 0;">
@@ -28,17 +45,18 @@
                     {
                         foreach (var item in Model)
                         {
+                            var trangThai = NormalizeTrangThai(item.TrangThai);
                             <tr>
                                 <td>#@item.MaDonHang</td>
                                 <td>@item.NgayDat?.ToString("dd/MM/yyyy")</td>
                                 <td>@item.TongTien?.ToString("#,##0")₫</td>
-                                <td><span class="badge badge-success">@item.TrangThai</span></td>
+                                <td><span class="badge badge-success">@trangThai</span></td>
                                 <td>
                                     <button class="btn btn-sm btn-info" onclick="viewOrderDetails(@item.MaDonHang)">
                                         <i class="fa fa-eye"></i> Xem món
                                     </button>
 
-                                    @if (item.TrangThai != "Đã giao hàng" && item.TrangThai != "Đã hủy")
+                                    @if (trangThai != "Đã giao hàng" && trangThai != "Đã hủy")
                                     {
                                         <button class="btn btn-sm btn-primary" onclick="confirmReceived(@item.MaDonHang)" style="background-color: #7fad39; border: none;">
                                             Nhận hàng

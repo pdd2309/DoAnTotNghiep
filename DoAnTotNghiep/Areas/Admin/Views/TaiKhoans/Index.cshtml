@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Quan ly tai khoan";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Danh sach tai khoan nguoi dung (API)</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="userTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ten dang nhap</th>
+                        <th>Ho ten</th>
+                        <th>Email</th>
+                        <th>Vai tro</th>
+                        <th>Cap nhat vai tro</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const USER_ROLES = ['KhachHang', 'Admin'];
+
+        async function loadUsers() {
+            const res = await fetch('/api/admin/users');
+            if (!res.ok) throw new Error('Cannot load users');
+            return await res.json();
+        }
+
+        async function updateRole(userId) {
+            const select = document.getElementById(`role-${userId}`);
+            if (!select) return;
+
+            const res = await fetch(`/api/admin/users/${userId}/role`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vaiTro: select.value })
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                alert('Cap nhat vai tro that bai: ' + err);
+                return;
+            }
+
+            location.reload();
+        }
+
+        $(async function () {
+            try {
+                const users = await loadUsers();
+
+                $('#userTable').DataTable({
+                    data: users,
+                    pageLength: 10,
+                    order: [[0, 'desc']],
+                    columns: [
+                        { data: 'maNguoiDung' },
+                        { data: 'tenDangNhap' },
+                        { data: 'hoTen', defaultContent: '' },
+                        { data: 'email', defaultContent: '' },
+                        {
+                            data: 'vaiTro',
+                            render: function (d) {
+                                return d === 'Admin'
+                                    ? '<span class="badge badge-danger">Admin</span>'
+                                    : '<span class="badge badge-secondary">KhachHang</span>';
+                            }
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            render: function (d, t, row) {
+                                const options = USER_ROLES.map(r => `<option value="${r}" ${row.vaiTro === r ? 'selected' : ''}>${r}</option>`).join('');
+                                return `
+                                    <div class="d-flex" style="min-width:180px;">
+                                        <select id="role-${row.maNguoiDung}" class="form-control form-control-sm mr-2">${options}</select>
+                                        <button class="btn btn-primary btn-sm" onclick="updateRole(${row.maNguoiDung})">Luu</button>
+                                    </div>
+                                `;
+                            }
+                        }
+                    ],
+                    language: {
+                        search: 'Tim kiem:',
+                        lengthMenu: 'Hien thi _MENU_ dong',
+                        info: 'Hien thi _START_ den _END_ cua _TOTAL_ tai khoan',
+                        infoEmpty: 'Khong co du lieu',
+                        zeroRecords: 'Khong tim thay tai khoan',
+                        paginate: {
+                            first: 'Dau',
+                            last: 'Cuoi',
+                            next: 'Sau',
+                            previous: 'Truoc'
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                alert('Khong the tai danh sach tai khoan.');
+            }
+        });
+    </script>
+}
