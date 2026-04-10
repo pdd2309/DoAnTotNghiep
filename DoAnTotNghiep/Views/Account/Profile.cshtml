@@ -1,0 +1,46 @@
+@model DoAnTotNghiep.Models.NguoiDung
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Th\u00F4ng tin c\u00E1 nh\u00E2n";
+}
+
+<section class="breadcrumb-section" style="background-color: #7fad39; padding: 20px 0;">
+    <div class="container text-center">
+        <h2 style="color: white;">Th&#244;ng tin c&#225; nh&#226;n</h2>
+    </div>
+</section>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <h4>T&#224;i kho&#7843;n c&#7911;a b&#7841;n</h4>
+            <div class="row">
+                <div class="col-lg-8 col-md-10">
+                    <div class="checkout__input">
+                        <p>M&#227; ng&#432;&#7901;i d&#249;ng</p>
+                        <input type="text" value="@Model.MaNguoiDung" readonly>
+                    </div>
+                    <div class="checkout__input">
+                        <p>T&#234;n &#273;&#259;ng nh&#7853;p</p>
+                        <input type="text" value="@Model.TenDangNhap" readonly>
+                    </div>
+                    <div class="checkout__input">
+                        <p>H&#7885; t&#234;n</p>
+                        <input type="text" value="@Model.HoTen" readonly>
+                    </div>
+                    <div class="checkout__input">
+                        <p>Email</p>
+                        <input type="text" value="@Model.Email" readonly>
+                    </div>
+                    <div class="checkout__input">
+                        <p>Vai tr&#242;</p>
+                        <input type="text" value="@Model.VaiTro" readonly>
+                    </div>
+
+                    <a href="/Account/LichSuMuaHang" class="site-btn" style="margin-right:10px;">XEM &#272;&#416;N H&#192;NG</a>
+                    <a href="/Account/Logout" class="site-btn" style="background:#dc3545 !important;">&#272;&#258;NG XU&#7844;T</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -4,8 +4,8 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Quan ly banner trang chu (API)</h6>
-        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Them banner</button>
+        <h6 class="m-0 font-weight-bold text-primary">Qu&#7843;n l&#253; banner trang ch&#7911; (API)</h6>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Th&#234;m banner</button>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -13,12 +13,12 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Vi tri</th>
-                        <th>Tieu de</th>
-                        <th>Hinh anh</th>
-                        <th>Thu tu</th>
-                        <th>Hien thi</th>
-                        <th>Thao tac</th>
+                        <th>V&#7883; tr&#237;</th>
+                        <th>Ti&#234;u &#273;&#7873;</th>
+                        <th>H&#236;nh &#7843;nh</th>
+                        <th>Th&#7913; t&#7921;</th>
+                        <th>Hi&#7875;n th&#7883;</th>
+                        <th>Thao t&#225;c</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -40,30 +40,30 @@
                 <input type="hidden" id="bannerId" />
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label>Vi tri</label>
+                        <label>V&#7883; tr&#237;</label>
                         <select class="form-control" id="position">
                             <option value="Hero">Hero</option>
                             <option value="Bottom">Bottom</option>
                         </select>
                     </div>
                     <div class="form-group col-md-6">
-                        <label>Thu tu</label>
+                        <label>Th&#7913; t&#7921;</label>
                         <input type="number" class="form-control" id="displayOrder" value="0" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Tieu de</label>
+                    <label>Ti&#234;u &#273;&#7873;</label>
                     <input type="text" class="form-control" id="title" />
                 </div>
 
                 <div class="form-group">
-                    <label>Tieu de phu</label>
+                    <label>Ti&#234;u &#273;&#7873; ph&#7909;</label>
                     <input type="text" class="form-control" id="subTitle" />
                 </div>
 
                 <div class="form-group">
-                    <label>Mo ta</label>
+                    <label>M&#244; t&#7843;</label>
                     <textarea class="form-control" id="description"></textarea>
                 </div>
 
@@ -73,19 +73,19 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Hinh anh</label>
+                    <label>H&#236;nh &#7843;nh</label>
                     <input type="file" class="form-control" id="imageFile" accept="image/*" />
-                    <small class="text-muted">Khi sua, bo trong neu khong muon doi anh.</small>
+                    <small class="text-muted">Khi s&#7917;a, b&#7887; tr&#7889;ng n&#7871;u kh&#244;ng mu&#7889;n &#273;&#7893;i &#7843;nh.</small>
                 </div>
 
                 <div class="form-group form-check">
                     <input type="checkbox" class="form-check-input" id="isActive" checked>
-                    <label class="form-check-label" for="isActive">Hien thi tren trang chu</label>
+                    <label class="form-check-label" for="isActive">Hi&#7875;n th&#7883; tr&#234;n trang ch&#7911;</label>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Dong</button>
-                <button type="button" class="btn btn-primary" onclick="saveBanner()">Luu</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">&#272;&#243;ng</button>
+                <button type="button" class="btn btn-primary" onclick="saveBanner()">L&#432;u</button>
             </div>
         </div>
     </div>
@@ -101,7 +101,7 @@
         }
 
         function openCreateModal() {
-            $('#bannerModalTitle').text('Them banner');
+            $('#bannerModalTitle').text('Th\u00eam banner');
             $('#bannerId').val('');
             $('#position').val('Hero');
             $('#displayOrder').val(0);
@@ -117,12 +117,12 @@
         async function openEditModal(id) {
             const res = await fetch(`/api/admin/banners/${id}`);
             if (!res.ok) {
-                alert('Khong tai duoc banner.');
+                alert('Kh\u00f4ng t\u1ea3i \u0111\u01b0\u1ee3c banner.');
                 return;
             }
 
             const b = await res.json();
-            $('#bannerModalTitle').text('Sua banner #' + b.id);
+            $('#bannerModalTitle').text('S\u1eeda banner #' + b.id);
             $('#bannerId').val(b.id);
             $('#position').val(b.position || 'Hero');
             $('#displayOrder').val(b.displayOrder || 0);
@@ -159,7 +159,7 @@
             const res = await fetch(url, { method, body: formData });
             if (!res.ok) {
                 const err = await res.text();
-                alert('Luu banner that bai: ' + err);
+                alert('L\u01b0u banner th\u1ea5t b\u1ea1i: ' + err);
                 return;
             }
 
@@ -168,11 +168,11 @@
         }
 
         async function deleteBanner(id) {
-            if (!confirm('Ban chac chan muon xoa banner nay?')) return;
+            if (!confirm('B\u1ea1n ch\u1eafc ch\u1eafn mu\u1ed1n x\u00f3a banner n\u00e0y?')) return;
 
             const res = await fetch(`/api/admin/banners/${id}`, { method: 'DELETE' });
             if (!res.ok) {
-                alert('Xoa that bai.');
+                alert('X\u00f3a th\u1ea5t b\u1ea1i.');
                 return;
             }
 
@@ -181,7 +181,7 @@
 
         async function loadBanners() {
             const res = await fetch('/api/admin/banners');
-            if (!res.ok) throw new Error('Khong tai duoc danh sach banner');
+            if (!res.ok) throw new Error('Kh\u00f4ng t\u1ea3i \u0111\u01b0\u1ee3c danh s\u00e1ch banner');
             const items = await res.json();
 
             if (bannerTable) {
@@ -202,7 +202,7 @@
                     { data: 'displayOrder' },
                     {
                         data: 'isActive',
-                        render: d => d ? '<span class="badge badge-success">On</span>' : '<span class="badge badge-secondary">Off</span>'
+                        render: d => d ? '<span class="badge badge-success">B\u1eadt</span>' : '<span class="badge badge-secondary">T\u1eaft</span>'
                     },
                     {
                         data: null,
@@ -214,7 +214,20 @@
                             `;
                         }
                     }
-                ]
+                ],
+                language: {
+                    search: 'T\u00ecm ki\u1ebfm:',
+                    lengthMenu: 'Hi\u1ec3n th\u1ecb _MENU_ d\u00f2ng',
+                    info: 'Hi\u1ec3n th\u1ecb _START_ \u0111\u1ebfn _END_ c\u1ee7a _TOTAL_ banner',
+                    infoEmpty: 'Kh\u00f4ng c\u00f3 d\u1eef li\u1ec7u',
+                    zeroRecords: 'Kh\u00f4ng t\u00ecm th\u1ea5y banner',
+                    paginate: {
+                        first: '\u0110\u1ea7u',
+                        last: 'Cu\u1ed1i',
+                        next: 'Sau',
+                        previous: 'Tr\u01b0\u1edbc'
+                    }
+                }
             });
         }
 
@@ -223,7 +236,7 @@
                 await loadBanners();
             } catch (e) {
                 console.error(e);
-                alert('Khong the tai danh sach banner.');
+                alert('Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch banner.');
             }
         });
     </script>

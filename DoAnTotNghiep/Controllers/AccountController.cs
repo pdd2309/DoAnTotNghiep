@@ -73,6 +73,18 @@ namespace DoAnTotNghiep.Controllers
         }
 
         [HttpGet]
+        public IActionResult Profile()
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            var user = _db.NguoiDungs.FirstOrDefault(u => u.MaNguoiDung == userId.Value);
+            if (user == null) return RedirectToAction("Login");
+
+            return View(user);
+        }
+
+        [HttpGet]
         public IActionResult ExternalLogin(string provider)
         {
             var properties = new AuthenticationProperties { RedirectUri = Url.Action("ExternalLoginCallback") };

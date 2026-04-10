@@ -4,7 +4,7 @@
 
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Danh sach tai khoan nguoi dung (API)</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Danh s&#225;ch t&#224;i kho&#7843;n ng&#432;&#7901;i d&#249;ng (API)</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -12,11 +12,11 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Ten dang nhap</th>
-                        <th>Ho ten</th>
+                        <th>T&#234;n &#273;&#259;ng nh&#7853;p</th>
+                        <th>H&#7885; t&#234;n</th>
                         <th>Email</th>
-                        <th>Vai tro</th>
-                        <th>Cap nhat vai tro</th>
+                        <th>Vai tr&#242;</th>
+                        <th>C&#7853;p nh&#7853;t vai tr&#242;</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -27,7 +27,10 @@
 
 @section Scripts {
     <script>
-        const USER_ROLES = ['KhachHang', 'Admin'];
+        const USER_ROLES = [
+            { value: 'KhachHang', text: 'Kh\u00E1ch h\u00E0ng' },
+            { value: 'Admin', text: 'Admin' }
+        ];
 
         async function loadUsers() {
             const res = await fetch('/api/admin/users');
@@ -47,7 +50,7 @@
 
             if (!res.ok) {
                 const err = await res.text();
-                alert('Cap nhat vai tro that bai: ' + err);
+                alert('C\u1EADp nh\u1EADt vai tr\u00F2 th\u1EA5t b\u1EA1i: ' + err);
                 return;
             }
 
@@ -72,40 +75,40 @@
                             render: function (d) {
                                 return d === 'Admin'
                                     ? '<span class="badge badge-danger">Admin</span>'
-                                    : '<span class="badge badge-secondary">KhachHang</span>';
+                                    : '<span class="badge badge-secondary">Kh\u00E1ch h\u00E0ng</span>';
                             }
                         },
                         {
                             data: null,
                             orderable: false,
                             render: function (d, t, row) {
-                                const options = USER_ROLES.map(r => `<option value="${r}" ${row.vaiTro === r ? 'selected' : ''}>${r}</option>`).join('');
+                                const options = USER_ROLES.map(r => `<option value="${r.value}" ${row.vaiTro === r.value ? 'selected' : ''}>${r.text}</option>`).join('');
                                 return `
                                     <div class="d-flex" style="min-width:180px;">
                                         <select id="role-${row.maNguoiDung}" class="form-control form-control-sm mr-2">${options}</select>
-                                        <button class="btn btn-primary btn-sm" onclick="updateRole(${row.maNguoiDung})">Luu</button>
+                                        <button class="btn btn-primary btn-sm" onclick="updateRole(${row.maNguoiDung})">L\u01B0u</button>
                                     </div>
                                 `;
                             }
                         }
                     ],
                     language: {
-                        search: 'Tim kiem:',
-                        lengthMenu: 'Hien thi _MENU_ dong',
-                        info: 'Hien thi _START_ den _END_ cua _TOTAL_ tai khoan',
-                        infoEmpty: 'Khong co du lieu',
-                        zeroRecords: 'Khong tim thay tai khoan',
+                        search: 'T\u00ECm ki\u1EBFm:',
+                        lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
+                        info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ t\u00E0i kho\u1EA3n',
+                        infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
+                        zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y t\u00E0i kho\u1EA3n',
                         paginate: {
-                            first: 'Dau',
-                            last: 'Cuoi',
+                            first: '\u0110\u1EA7u',
+                            last: 'Cu\u1ED1i',
                             next: 'Sau',
-                            previous: 'Truoc'
+                            previous: 'Tr\u01B0\u1EDBc'
                         }
                     }
                 });
             } catch (e) {
                 console.error(e);
-                alert('Khong the tai danh sach tai khoan.');
+                alert('Kh\u00F4ng th\u1EC3 t\u1EA3i danh s\u00E1ch t\u00E0i kho\u1EA3n.');
             }
         });
     </script>
