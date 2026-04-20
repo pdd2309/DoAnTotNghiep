@@ -1,52 +1,94 @@
-﻿@{
-    ViewData["Title"] = "Bảng điều khiển Admin";
+@{
+    ViewData["Title"] = "Bang dieu khien Admin";
+    var totalRevenue = (decimal)(ViewBag.TotalRevenue ?? 0m);
+    var todayRevenue = (decimal)(ViewBag.TodayRevenue ?? 0m);
+    var pendingOrders = (int)(ViewBag.PendingOrders ?? 0);
+    var vouchersExpiringSoon = (int)(ViewBag.VouchersExpiringSoon ?? 0);
 }
 
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800 lang"
-        data-vi="Bảng điều khiển hệ thống"
+        data-vi="B&#7843;ng &#273;i&#7873;u khi&#7875;n h&#7879; th&#7889;ng"
         data-en="System Dashboard">
-        Bảng điều khiển hệ thống
+        B&#7843;ng &#273;i&#7873;u khi&#7875;n h&#7879; th&#7889;ng
     </h1>
-    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-        <i class="fas fa-download fa-sm text-white-50"></i>
-        <span class="lang" data-vi="Tạo báo cáo" data-en="Generate Report">Tạo báo cáo</span>
-    </a>
 </div>
 
 <div class="row">
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 lang"
-                             data-vi="Tổng sản phẩm" data-en="Total Products">
-                            Tổng sản phẩm
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">120</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-laptop fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-success shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1 lang"
-                             data-vi="Đơn hàng mới" data-en="New Orders">
-                            Đơn hàng mới
+                             data-vi="T&#7893;ng doanh thu"
+                             data-en="Total Revenue">
+                            T&#7893;ng doanh thu
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">25</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@totalRevenue.ToString("N0") &#273;</div>
                     </div>
                     <div class="col-auto">
-                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                        <i class="fas fa-coins fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 lang"
+                             data-vi="&#272;&#417;n ch&#7901; x&#7917; l&#253;"
+                             data-en="Pending Orders">
+                            &#272;&#417;n ch&#7901; x&#7917; l&#253;
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@pendingOrders</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-basket fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1 lang"
+                             data-vi="Doanh thu h&#244;m nay"
+                             data-en="Today Revenue">
+                            Doanh thu h&#244;m nay
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@todayRevenue.ToString("N0") &#273;</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 lang"
+                             data-vi="Voucher s&#7855;p h&#7871;t h&#7841;n (7 ng&#224;y)"
+                             data-en="Vouchers Expiring Soon (7 days)">
+                            Voucher s&#7855;p h&#7871;t h&#7841;n (7 ng&#224;y)
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@vouchersExpiringSoon</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
                     </div>
                 </div>
             </div>
@@ -55,21 +97,90 @@
 </div>
 
 <div class="row">
-    <div class="col-lg-12">
+    <div class="col-lg-6">
         <div class="card shadow mb-4">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary lang"
-                    data-vi="Thông báo hệ thống" data-en="System Notifications">
-                    Thông báo hệ thống
+                    data-vi="Bi&#7875;u &#273;&#7891; t&#7893;ng doanh thu"
+                    data-en="Total Revenue Chart">
+                    Bi&#7875;u &#273;&#7891; t&#7893;ng doanh thu
                 </h6>
             </div>
             <div class="card-body">
-                <p class="lang"
-                   data-vi="Chào mừng Đông quay trở lại trang quản trị Tech Store. Hãy kiểm tra các đơn hàng mới trong ngày hôm nay nhé!"
-                   data-en="Welcome back to Tech Store Admin. Please check the new orders for today!">
-                    Chào mừng Đông quay trở lại trang quản trị Tech Store. Hãy kiểm tra các đơn hàng mới trong ngày hôm nay nhé!
-                </p>
+                <canvas id="revenueChart" height="140"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary lang"
+                    data-vi="Top 5 s&#7843;n ph&#7849;m b&#225;n ch&#7841;y"
+                    data-en="Top 5 Best Selling Products">
+                    Top 5 s&#7843;n ph&#7849;m b&#225;n ch&#7841;y
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="topProductsChart" height="140"></canvas>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const totalRevenue = Number('@totalRevenue');
+        const topProductLabels = @Html.Raw(ViewBag.TopProductLabels ?? "[]");
+        const topProductValues = @Html.Raw(ViewBag.TopProductValues ?? "[]");
+
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['T\u1ED5ng doanh thu'],
+                    datasets: [{
+                        label: 'VND',
+                        data: [totalRevenue],
+                        backgroundColor: 'rgba(28, 200, 138, 0.6)',
+                        borderColor: 'rgba(28, 200, 138, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        const topProductsCtx = document.getElementById('topProductsChart');
+        if (topProductsCtx) {
+            new Chart(topProductsCtx, {
+                type: 'pie',
+                data: {
+                    labels: topProductLabels,
+                    datasets: [{
+                        data: topProductValues,
+                        backgroundColor: [
+                            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+    </script>
+}
