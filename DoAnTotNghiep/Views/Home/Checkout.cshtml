@@ -1,6 +1,6 @@
-﻿@{
+@{
     Layout = "_Layout";
-    ViewData["Title"] = "Thanh Toán";
+    ViewData["Title"] = "Thanh To\u00E1n";
 }
 
 <style>
@@ -22,6 +22,23 @@
     .payment-option .payment-label {
         font-weight: 600;
     }
+
+    #saved-address-select {
+        width: 100%;
+    }
+
+    #saved-address-select + .nice-select {
+        width: 100%;
+        float: none;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    #saved-address-select + .nice-select .list {
+        width: 100%;
+        max-height: 240px;
+        overflow-y: auto;
+    }
 </style>
 
 <section class="breadcrumb-section set-bg" data-setbg="/img/breadcrumb.jpg">
@@ -29,10 +46,10 @@
         <div class="row">
             <div class="col-lg-12 text-center">
                 <div class="breadcrumb__text">
-                    <h2>Thanh Toán</h2>
+                    <h2>Thanh To&#225;n</h2>
                     <div class="breadcrumb__option">
-                        <a href="/">Trang Chủ</a>
-                        <span>Thanh Toán</span>
+                        <a href="/">Trang Ch&#7911;</a>
+                        <span>Thanh To&#225;n</span>
                     </div>
                 </div>
             </div>
@@ -43,22 +60,30 @@
 <section class="checkout spad">
     <div class="container">
         <div class="checkout__form">
-            <h4>Thông Tin Thanh Toán</h4>
+            <h4>Th&#244;ng Tin Thanh To&#225;n</h4>
             <form id="checkout-form">
                 <div class="row">
                     <div class="col-lg-8 col-md-6">
                         <div class="checkout__input">
-                            <p>Họ và Tên<span>*</span></p>
-                            <input type="text" id="order-name" placeholder="Nhập đầy đủ họ tên người nhận" required>
+                            <p>&#272;&#7883;a ch&#7881; &#273;&#227; l&#432;u</p>
+                            <select id="saved-address-select" class="form-control address-select">
+                                <option value="">Ch&#7885;n &#273;&#7883;a ch&#7881; &#273;&#227; l&#432;u</option>
+                            </select>
+                            <small id="address-book-message" style="display:block; margin-top:6px;"></small>
+                        </div>
+
+                        <div class="checkout__input">
+                            <p>H&#7885; v&#224; T&#234;n<span>*</span></p>
+                            <input type="text" id="order-name" placeholder="Nh&#7853;p &#273;&#7847;y &#273;&#7911; h&#7885; t&#234;n ng&#432;&#7901;i nh&#7853;n" required>
                         </div>
                         <div class="checkout__input">
-                            <p>Địa Chỉ Nhận Hàng<span>*</span></p>
-                            <input type="text" id="order-address" placeholder="Số nhà, tên đường, xã/phường..." required>
+                            <p>&#272;&#7883;a Ch&#7881; Nh&#7853;n H&#224;ng<span>*</span></p>
+                            <input type="text" id="order-address" placeholder="S&#7889; nh&#224;, t&#234;n &#273;&#432;&#7901;ng, x&#227;/ph&#432;&#7901;ng..." required>
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="checkout__input">
-                                    <p>Điện Thoại<span>*</span></p>
+                                    <p>&#272;i&#7879;n Tho&#7841;i<span>*</span></p>
                                     <input type="text" id="order-phone" required>
                                 </div>
                             </div>
@@ -70,45 +95,54 @@
                             </div>
                         </div>
                         <div class="checkout__input">
-                            <p>Ghi Chú Đơn Hàng</p>
-                            <input type="text" id="order-note" placeholder="Ví dụ: Giao giờ hành chính">
+                            <p>Ghi Ch&#250; &#272;&#417;n H&#224;ng</p>
+                            <input type="text" id="order-note" placeholder="V&#237; d&#7909;: Giao gi&#7901; h&#224;nh ch&#237;nh">
+                        </div>
+
+                        <div class="checkout__input__checkbox" style="margin-bottom: 15px;">
+                            <label>
+                                <input type="checkbox" id="save-address-check">
+                                <span class="checkmark"></span>
+                                L&#432;u &#273;&#7883;a ch&#7881; n&#224;y v&#224;o s&#7893; &#273;&#7883;a ch&#7881;
+                            </label>
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-6">
                         <div class="checkout__order">
-                            <h4>Đơn Hàng Của Bạn</h4>
-                            <div class="checkout__order__products">Sản Phẩm <span>Tổng Cộng</span></div>
-                            <ul id="checkout-list">
-                            </ul>
+                            <h4>&#272;&#417;n H&#224;ng C&#7911;a B&#7841;n</h4>
+                            <div class="checkout__order__products">S&#7843;n Ph&#7849;m <span>T&#7893;ng C&#7897;ng</span></div>
+                            <ul id="checkout-list"></ul>
+
                             <div style="margin-bottom: 12px;">
                                 <div class="input-group">
-                                    <input type="text" id="voucher-code" class="form-control" placeholder="Nhập mã giảm giá">
+                                    <input type="text" id="voucher-code" class="form-control" placeholder="Nh&#7853;p m&#227; gi&#7843;m gi&#225;">
                                     <div class="input-group-append">
-                                        <button type="button" id="btn-apply-voucher" class="btn btn-outline-success">Áp dụng</button>
+                                        <button type="button" id="btn-apply-voucher" class="btn btn-outline-success">&#193;p d&#7909;ng</button>
                                     </div>
                                 </div>
                                 <small id="voucher-message" style="display:block; margin-top:6px;"></small>
                             </div>
-                            <div class="checkout__order__subtotal">Tạm Tính <span id="checkout-subtotal">0đ</span></div>
-                            <div class="checkout__order__subtotal">Giảm giá <span id="checkout-discount">0đ</span></div>
-                            <div class="checkout__order__total">Tổng Cộng <span id="checkout-total" style="color: #dd2222; font-weight: bold; font-size: 20px;">0đ</span></div>
+
+                            <div class="checkout__order__subtotal">T&#7841;m T&#237;nh <span id="checkout-subtotal">0&#273;</span></div>
+                            <div class="checkout__order__subtotal">Gi&#7843;m gi&#225; <span id="checkout-discount">0&#273;</span></div>
+                            <div class="checkout__order__total">T&#7893;ng C&#7897;ng <span id="checkout-total" style="color: #dd2222; font-weight: bold; font-size: 20px;">0&#273;</span></div>
 
                             <div class="checkout__input__checkbox" style="margin-bottom: 10px;">
                                 <label class="payment-option active">
                                     <input type="radio" name="payment-method" value="COD" checked>
                                     <span class="checkmark"></span>
-                                    <span class="payment-label">Thanh toán khi nhận hàng (COD)</span>
+                                    <span class="payment-label">Thanh to&#225;n khi nh&#7853;n h&#224;ng (COD)</span>
                                 </label>
                             </div>
                             <div class="checkout__input__checkbox" style="margin-bottom: 15px;">
                                 <label class="payment-option">
                                     <input type="radio" name="payment-method" value="VNPAY">
                                     <span class="checkmark"></span>
-                                    <span class="payment-label">Thanh toán VNPay</span>
+                                    <span class="payment-label">Thanh to&#225;n VNPay</span>
                                 </label>
                             </div>
 
-                            <button type="button" id="btn-place-order" class="site-btn">ĐẶT HÀNG NGAY</button>
+                            <button type="button" id="btn-place-order" class="site-btn">&#272;&#7862;T H&#192;NG NGAY</button>
                         </div>
                     </div>
                 </div>

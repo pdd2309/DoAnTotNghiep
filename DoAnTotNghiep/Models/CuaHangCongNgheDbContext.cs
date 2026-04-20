@@ -17,6 +17,8 @@ public partial class CuaHangCongNgheDBContext : DbContext
 
     public virtual DbSet<Banner> Banners { get; set; }
 
+    public virtual DbSet<AddressBook> AddressBooks { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<CartItem> CartItems { get; set; }
@@ -35,9 +37,15 @@ public partial class CuaHangCongNgheDBContext : DbContext
 
     public virtual DbSet<NguoiDung> NguoiDungs { get; set; }
 
+    public virtual DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+
+    public virtual DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+
     public virtual DbSet<SanPham> SanPhams { get; set; }
 
     public virtual DbSet<Voucher> Vouchers { get; set; }
+
+    public virtual DbSet<VoucherUsage> VoucherUsages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,6 +73,32 @@ public partial class CuaHangCongNgheDBContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasDefaultValueSql("(getdate())");
+        });
+
+        modelBuilder.Entity<AddressBook>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_AddressBook");
+
+            entity.ToTable("AddressBook");
+
+            entity.Property(e => e.FullName).HasMaxLength(150);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+            entity.Property(e => e.AddressLine).HasMaxLength(250);
+            entity.Property(e => e.Ward).HasMaxLength(100);
+            entity.Property(e => e.District).HasMaxLength(100);
+            entity.Property(e => e.Province).HasMaxLength(100);
+            entity.Property(e => e.IsDefault).HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
+
+            entity.HasOne<NguoiDung>()
+                .WithMany()
+                .HasForeignKey(e => e.MaNguoiDung)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_AddressBook_NguoiDung");
         });
 
         modelBuilder.Entity<Cart>(entity =>
@@ -251,6 +285,75 @@ public partial class CuaHangCongNgheDBContext : DbContext
                 .HasConstraintName("FK__SanPham__MaDanhM__5070F446");
         });
 
+        modelBuilder.Entity<OrderStatusHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_OrderStatusHistory");
+
+            entity.ToTable("OrderStatusHistory");
+
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Note).HasMaxLength(500);
+
+            entity.Property(e => e.ChangedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
+
+            entity.HasOne<DonHang>()
+                .WithMany()
+                .HasForeignKey(e => e.MaDonHang)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_OrderStatusHistory_DonHang");
+
+            entity.HasOne<NguoiDung>()
+                .WithMany()
+                .HasForeignKey(e => e.ChangedByUserId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_OrderStatusHistory_NguoiDung");
+        });
+
+        modelBuilder.Entity<PaymentTransaction>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_PaymentTransaction");
+
+            entity.ToTable("PaymentTransaction");
+
+            entity.Property(e => e.Provider)
+                .IsRequired()
+                .HasMaxLength(30)
+                .IsUnicode(false);
+
+            entity.Property(e => e.TransactionNo)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Amount).HasColumnType("decimal(18, 2)");
+
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasDefaultValue("Pending");
+
+            entity.Property(e => e.ResponseCode)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+
+            entity.Property(e => e.PaidAt).HasColumnType("datetime");
+
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
+
+            entity.HasOne<DonHang>()
+                .WithMany()
+                .HasForeignKey(e => e.MaDonHang)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_PaymentTransaction_DonHang");
+        });
+
         modelBuilder.Entity<Voucher>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Voucher");
@@ -285,6 +388,45 @@ public partial class CuaHangCongNgheDBContext : DbContext
             entity.Property(e => e.CreatedAt)
                 .HasColumnType("datetime")
                 .HasDefaultValueSql("(getdate())");
+        });
+
+        modelBuilder.Entity<VoucherUsage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_VoucherUsage");
+
+            entity.ToTable("VoucherUsage");
+
+            entity.Property(e => e.VoucherCode)
+                .IsRequired()
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18, 2)");
+
+            entity.Property(e => e.UsedAt)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("(getdate())");
+
+            entity.HasIndex(e => e.MaDonHang, "UQ_VoucherUsage_MaDonHang")
+                .IsUnique();
+
+            entity.HasOne<Voucher>()
+                .WithMany()
+                .HasForeignKey(e => e.VoucherId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_VoucherUsage_Voucher");
+
+            entity.HasOne<NguoiDung>()
+                .WithMany()
+                .HasForeignKey(e => e.MaNguoiDung)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK_VoucherUsage_NguoiDung");
+
+            entity.HasOne<DonHang>()
+                .WithMany()
+                .HasForeignKey(e => e.MaDonHang)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_VoucherUsage_DonHang");
         });
 
         OnModelCreatingPartial(modelBuilder);

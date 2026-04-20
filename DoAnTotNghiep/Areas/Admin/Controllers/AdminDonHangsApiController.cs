@@ -93,6 +93,20 @@ namespace DoAnTotNghiep.Areas.Admin.Controllers
             order.TrangThai = request.TrangThai;
             await _context.SaveChangesAsync();
 
+            var currentUserIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            int? changedByUserId = int.TryParse(currentUserIdClaim, out var uid) ? uid : null;
+
+            _context.OrderStatusHistories.Add(new OrderStatusHistory
+            {
+                MaDonHang = order.MaDonHang,
+                Status = order.TrangThai,
+                ChangedByUserId = changedByUserId,
+                Note = "Updated by admin",
+                ChangedAt = DateTime.Now
+            });
+
+            await _context.SaveChangesAsync();
+
             return Ok(new { maDonHang = order.MaDonHang, trangThai = order.TrangThai });
         }
 

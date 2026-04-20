@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Lich su dung voucher";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">L&#7883;ch s&#7917; s&#7917; d&#7909;ng voucher</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="voucherUsageTable" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>M&#227; &#273;&#417;n</th>
+                        <th>M&#227; voucher</th>
+                        <th>T&#234;n voucher</th>
+                        <th>User</th>
+                        <th>Gi&#7843;m gi&#225;</th>
+                        <th>Th&#7901;i gian d&#249;ng</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function money(v) {
+        return Number(v || 0).toLocaleString('vi-VN') + ' \u0111';
+    }
+
+    async function loadVoucherUsage() {
+        const res = await fetch('/api/admin/voucher-usages');
+        if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c l\u1ECBch s\u1EED voucher');
+        return await res.json();
+    }
+
+    $(async function () {
+        try {
+            const items = await loadVoucherUsage();
+            $('#voucherUsageTable').DataTable({
+                data: items,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columns: [
+                    { data: 'id' },
+                    { data: 'maDonHang', render: d => `#${d}` },
+                    { data: 'voucherCode' },
+                    { data: 'voucherName', defaultContent: '' },
+                    { data: 'tenDangNhap', defaultContent: '' },
+                    { data: 'discountAmount', render: d => money(d) },
+                    { data: 'usedAt', render: d => d ? new Date(d).toLocaleString('vi-VN') : '' }
+                ],
+                language: {
+                    search: 'T\u00ECm ki\u1EBFm:',
+                    lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
+                    info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ l\u1ECBch s\u1EED',
+                    infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
+                    zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y l\u1ECBch s\u1EED',
+                    paginate: {
+                        first: '\u0110\u1EA7u',
+                        last: 'Cu\u1ED1i',
+                        next: 'Sau',
+                        previous: 'Tr\u01B0\u1EDBc'
+                    }
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            alert('Kh\u00F4ng th\u1EC3 t\u1EA3i d\u1EEF li\u1EC7u.');
+        }
+    });
+</script>
+}

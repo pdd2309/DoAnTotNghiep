@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const voucherInput = document.getElementById('voucher-code');
     const applyVoucherButton = document.getElementById('btn-apply-voucher');
 
+    const savedAddressSelect = document.getElementById('saved-address-select');
+    const saveAddressCheck = document.getElementById('save-address-check');
+    const addressBookMessage = document.getElementById('address-book-message');
+
     if (!listElement) return;
 
     const fmt = v => new Intl.NumberFormat('vi-VN', {
@@ -17,11 +21,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     let currentSubTotal = 0;
     let discountAmount = 0;
     let appliedVoucherCode = '';
+    let savedAddresses = [];
 
     function setVoucherMessage(text, isError) {
         if (!voucherMessageElement) return;
         voucherMessageElement.textContent = text || '';
         voucherMessageElement.style.color = isError ? '#dc3545' : '#28a745';
+    }
+
+    function setAddressBookMessage(text, isError) {
+        if (!addressBookMessage) return;
+        addressBookMessage.textContent = text || '';
+        addressBookMessage.style.color = isError ? '#dc3545' : '#28a745';
     }
 
     function renderTotals() {
@@ -133,6 +144,122 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    function composeAddress(item) {
+        const parts = [item.addressLine, item.ward, item.district, item.province].filter(x => !!x && String(x).trim() !== '');
+        return parts.join(', ');
+    }
+
+    function fillAddressForm(item) {
+        const nameInput = document.getElementById('order-name');
+        const phoneInput = document.getElementById('order-phone');
+        const addressInput = document.getElementById('order-address');
+
+        if (nameInput) nameInput.value = item.fullName || '';
+        if (phoneInput) phoneInput.value = item.phone || '';
+        if (addressInput) addressInput.value = composeAddress(item);
+    }
+
+    async function loadSavedAddresses() {
+        if (!savedAddressSelect) return;
+
+        try {
+            const res = await fetch('/api/AddressBookApi/My');
+            if (res.status === 401) {
+                savedAddressSelect.style.display = 'none';
+                return;
+            }
+            if (!res.ok) throw new Error('Load address failed');
+
+            savedAddresses = await res.json();
+
+            savedAddressSelect.innerHTML = '<option value="">Ch\u1ECDn \u0111\u1ECBa ch\u1EC9 \u0111\u00E3 l\u01B0u</option>';
+            savedAddresses.forEach(item => {
+                const text = `${item.fullName || ''} - ${item.phone || ''} - ${composeAddress(item)}`;
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.isDefault ? `${text} (m\u1EB7c \u0111\u1ECBnh)` : text;
+                savedAddressSelect.appendChild(opt);
+            });
+
+            if (window.jQuery && typeof window.jQuery.fn.niceSelect === 'function') {
+                const $select = window.jQuery(savedAddressSelect);
+                if ($select.next('.nice-select').length) {
+                    $select.niceSelect('update');
+                }
+            }
+
+            const defaultItem = savedAddresses.find(x => x.isDefault);
+            if (defaultItem) {
+                savedAddressSelect.value = String(defaultItem.id);
+
+                if (window.jQuery && typeof window.jQuery.fn.niceSelect === 'function') {
+                    const $select = window.jQuery(savedAddressSelect);
+                    if ($select.next('.nice-select').length) {
+                        $select.niceSelect('update');
+                    }
+                }
+
+                fillAddressForm(defaultItem);
+            }
+
+            applySelectedAddress();
+        } catch (err) {
+            console.error(err);
+            setAddressBookMessage('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c s\u1ED5 \u0111\u1ECBa ch\u1EC9.', true);
+        }
+    }
+
+    function applySelectedAddress() {
+        if (!savedAddressSelect) return;
+
+        const id = savedAddressSelect.value;
+        if (!id) return;
+
+        const selected = savedAddresses.find(x => String(x.id) === String(id));
+        if (selected) {
+            fillAddressForm(selected);
+            setAddressBookMessage('\u0110\u00E3 \u0111i\u1EC1n th\u00F4ng tin t\u1EEB \u0111\u1ECBa ch\u1EC9 \u0111\u00E3 l\u01B0u.', false);
+        }
+    }
+
+    async function saveCurrentAddressIfNeeded() {
+        if (!saveAddressCheck || !saveAddressCheck.checked) return;
+
+        const payload = {
+            fullName: (document.getElementById('order-name')?.value || '').trim(),
+            phone: (document.getElementById('order-phone')?.value || '').trim(),
+            addressLine: (document.getElementById('order-address')?.value || '').trim(),
+            ward: null,
+            district: null,
+            province: null,
+            isDefault: false
+        };
+
+        if (!payload.fullName || !payload.phone || !payload.addressLine) return;
+
+        const exists = savedAddresses.some(x =>
+            (x.fullName || '').trim() === payload.fullName &&
+            (x.phone || '').trim() === payload.phone &&
+            composeAddress(x).trim() === payload.addressLine);
+
+        if (exists) return;
+
+        try {
+            const res = await fetch('/api/AddressBookApi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                setAddressBookMessage('\u0110\u00E3 l\u01B0u \u0111\u1ECBa ch\u1EC9 m\u1EDBi.', false);
+                await loadSavedAddresses();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     function getOrderData() {
         return {
             HoTen: (document.getElementById('order-name')?.value || '').trim(),
@@ -196,6 +323,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             const paymentMethod = document.querySelector('input[name="payment-method"]:checked')?.value || 'COD';
 
             try {
+                await saveCurrentAddressIfNeeded();
+
                 if (paymentMethod === 'VNPAY') {
                     await redirectToVnPay(orderData);
                 } else {
@@ -206,6 +335,16 @@ document.addEventListener('DOMContentLoaded', async function () {
                 alert('C\u00F3 l\u1ED7i x\u1EA3y ra: ' + (err.message || 'Unknown error'));
             }
         });
+    }
+
+    if (savedAddressSelect) {
+        savedAddressSelect.addEventListener('change', applySelectedAddress);
+
+        if (window.jQuery) {
+            window.jQuery(document).on('click', '#saved-address-select + .nice-select .option', function () {
+                setTimeout(applySelectedAddress, 0);
+            });
+        }
     }
 
     if (applyVoucherButton) {
@@ -224,4 +363,5 @@ document.addEventListener('DOMContentLoaded', async function () {
     showPaymentResultFromQuery();
     initPaymentMethodUi();
     await loadOrderSummary();
+    await loadSavedAddresses();
 });

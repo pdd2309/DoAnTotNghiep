@@ -1,0 +1,60 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dang Ky";
+}
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="checkout__form" style="background-color: #d9edf7; padding: 40px; border-radius: 12px; box-shadow: 0px 8px 25px rgba(0,0,0,0.1);">
+                    <div class="section-title text-center" style="margin-bottom: 30px;">
+                        <h2 style="font-weight: 700; color: #333;">&#272;&#259;ng K&#253; T&#224;i Kho&#7843;n</h2>
+                    </div>
+
+                    <form action="/Account/Register" method="post">
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">T&#234;n &#273;&#259;ng nh&#7853;p<span>*</span></p>
+                            <input type="text" name="username" required style="background-color:#fff; border:1px solid #ccc; border-radius:6px; padding-left:15px; color:#333;">
+                        </div>
+
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">H&#7885; t&#234;n</p>
+                            <input type="text" name="fullName" style="background-color:#fff; border:1px solid #ccc; border-radius:6px; padding-left:15px; color:#333;">
+                        </div>
+
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">Email</p>
+                            <input type="email" name="email" style="background-color:#fff; border:1px solid #ccc; border-radius:6px; padding-left:15px; color:#333;">
+                        </div>
+
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">M&#7853;t kh&#7849;u<span>*</span></p>
+                            <input type="password" name="password" required style="background-color:#fff; border:1px solid #ccc; border-radius:6px; padding-left:15px; color:#333;">
+                        </div>
+
+                        <div class="checkout__input" style="margin-bottom: 20px;">
+                            <p style="color: #444; font-weight: 600;">X&#225;c nh&#7853;n m&#7853;t kh&#7849;u<span>*</span></p>
+                            <input type="password" name="confirmPassword" required style="background-color:#fff; border:1px solid #ccc; border-radius:6px; padding-left:15px; color:#333;">
+                        </div>
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger text-center" style="font-size: 14px; padding: 10px; border-radius: 6px;">
+                                @ViewBag.Error
+                            </div>
+                        }
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="site-btn" style="border-radius:6px; padding:12px 40px; font-weight:bold; letter-spacing:1px;">&#272;&#258;NG K&#221;</button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a href="/Account/Login">&#272;&#227; c&#243; t&#224;i kho&#7843;n? &#272;&#259;ng nh&#7853;p</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

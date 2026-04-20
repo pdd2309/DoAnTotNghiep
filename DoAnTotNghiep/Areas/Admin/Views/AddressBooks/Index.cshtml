@@ -1,0 +1,98 @@
+@{
+    ViewData["Title"] = "Quan ly so dia chi";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">S&#7893; &#273;&#7883;a ch&#7881; kh&#225;ch h&#224;ng</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="addressBookTable" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>H&#7885; t&#234;n</th>
+                        <th>S&#272;T</th>
+                        <th>&#272;&#7883;a ch&#7881;</th>
+                        <th>M&#7863;c &#273;&#7883;nh</th>
+                        <th>Ng&#224;y t&#7841;o</th>
+                        <th>Thao t&#225;c</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function fullAddress(row) {
+        return [row.diaChi, row.ward, row.district, row.province].filter(x => !!x).join(', ');
+    }
+
+    async function loadAddressBooks() {
+        const res = await fetch('/api/admin/address-books');
+        if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c s\u1ED5 \u0111\u1ECBa ch\u1EC9');
+        return await res.json();
+    }
+
+    async function deleteAddress(id) {
+        if (!confirm('B\u1EA1n ch\u1EAFc ch\u1EAFn mu\u1ED1n x\u00F3a \u0111\u1ECBa ch\u1EC9 n\u00E0y?')) return;
+
+        const res = await fetch(`/api/admin/address-books/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+            alert('X\u00F3a \u0111\u1ECBa ch\u1EC9 th\u1EA5t b\u1EA1i.');
+            return;
+        }
+
+        location.reload();
+    }
+
+    $(async function () {
+        try {
+            const items = await loadAddressBooks();
+
+            $('#addressBookTable').DataTable({
+                data: items,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columns: [
+                    { data: 'id' },
+                    { data: 'tenDangNhap', defaultContent: '' },
+                    { data: 'hoTen', defaultContent: '' },
+                    { data: 'phone', defaultContent: '' },
+                    { data: null, render: function (d, t, row) { return fullAddress(row); } },
+                    { data: 'isDefault', render: d => d ? '<span class="badge badge-success">C\u00F3</span>' : '<span class="badge badge-secondary">Kh\u00F4ng</span>' },
+                    { data: 'createdAt', render: d => d ? new Date(d).toLocaleString('vi-VN') : '' },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (d, t, row) {
+                            return `<button class="btn btn-danger btn-sm" onclick="deleteAddress(${row.id})"><i class="fas fa-trash"></i></button>`;
+                        }
+                    }
+                ],
+                language: {
+                    search: 'T\u00ECm ki\u1EBFm:',
+                    lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
+                    info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ \u0111\u1ECBa ch\u1EC9',
+                    infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
+                    zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y \u0111\u1ECBa ch\u1EC9',
+                    paginate: {
+                        first: '\u0110\u1EA7u',
+                        last: 'Cu\u1ED1i',
+                        next: 'Sau',
+                        previous: 'Tr\u01B0\u1EDBc'
+                    }
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            alert('Kh\u00F4ng th\u1EC3 t\u1EA3i d\u1EEF li\u1EC7u.');
+        }
+    });
+</script>
+}

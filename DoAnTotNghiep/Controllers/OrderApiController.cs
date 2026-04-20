@@ -67,6 +67,16 @@ namespace DoAnTotNghiep.Controllers
             }
 
             var newOrder = await CreateOrderFromCartAsync(request, userId.Value, cart, StatusChoXuLy, voucherResult);
+
+            await AddPaymentTransactionAsync(
+                orderId: newOrder.MaDonHang,
+                provider: "COD",
+                transactionNo: null,
+                amount: newOrder.TongTien ?? 0,
+                status: "Pending",
+                responseCode: null,
+                paidAt: null);
+
             return Ok(new { orderId = newOrder.MaDonHang });
         }
 
@@ -143,6 +153,22 @@ namespace DoAnTotNghiep.Controllers
             }
 
             var order = await CreateOrderFromCartAsync(request, userId.Value, cart, StatusDaThanhToan, voucherResult);
+
+            var transactionNo = Request.Query["vnp_TransactionNo"].ToString();
+            var amountRaw = Request.Query["vnp_Amount"].ToString();
+            var paidAtRaw = Request.Query["vnp_PayDate"].ToString();
+            var amount = ParseVnPayAmount(amountRaw, order.TongTien ?? 0);
+            var paidAt = ParseVnPayDate(paidAtRaw);
+
+            await AddPaymentTransactionAsync(
+                orderId: order.MaDonHang,
+                provider: "VNPAY",
+                transactionNo: transactionNo,
+                amount: amount,
+                status: "Success",
+                responseCode: responseCode,
+                paidAt: paidAt);
+
             HttpContext.Session.Remove("PendingOrderInfo");
 
             return Redirect($"/Home/Checkout?paymentStatus=success&orderId={order.MaDonHang}");
@@ -181,6 +207,8 @@ namespace DoAnTotNghiep.Controllers
                 order.TrangThai = StatusDaGiaoHang;
                 _db.DonHangs.Update(order);
                 await _db.SaveChangesAsync();
+
+                await AddOrderStatusHistoryAsync(order.MaDonHang, StatusDaGiaoHang, userId, "User confirmed order received");
 
                 return Ok(new { success = true, message = "Updated." });
             }
@@ -226,6 +254,8 @@ namespace DoAnTotNghiep.Controllers
             _db.DonHangs.Add(newOrder);
             await _db.SaveChangesAsync();
 
+            await AddOrderStatusHistoryAsync(newOrder.MaDonHang, status, userId, "Order created");
+
             foreach (var item in cart.CartItems)
             {
                 _db.ChiTietDonHangs.Add(new ChiTietDonHang
@@ -243,10 +273,69 @@ namespace DoAnTotNghiep.Controllers
             {
                 voucherResult.VoucherEntity.Quantity = Math.Max(0, voucherResult.VoucherEntity.Quantity - 1);
                 _db.Vouchers.Update(voucherResult.VoucherEntity);
+
+                _db.VoucherUsages.Add(new VoucherUsage
+                {
+                    VoucherId = voucherResult.VoucherEntity.Id,
+                    MaNguoiDung = userId,
+                    MaDonHang = newOrder.MaDonHang,
+                    VoucherCode = voucherResult.VoucherCode ?? voucherResult.VoucherEntity.Code,
+                    DiscountAmount = voucherResult.DiscountAmount,
+                    UsedAt = DateTime.Now
+                });
             }
 
             await _db.SaveChangesAsync();
             return newOrder;
+        }
+
+        private async Task AddOrderStatusHistoryAsync(int orderId, string status, int? changedByUserId, string? note)
+        {
+            _db.OrderStatusHistories.Add(new OrderStatusHistory
+            {
+                MaDonHang = orderId,
+                Status = status,
+                ChangedByUserId = changedByUserId,
+                Note = note,
+                ChangedAt = DateTime.Now
+            });
+
+            await _db.SaveChangesAsync();
+        }
+
+        private async Task AddPaymentTransactionAsync(int orderId, string provider, string? transactionNo, decimal amount, string status, string? responseCode, DateTime? paidAt)
+        {
+            _db.PaymentTransactions.Add(new PaymentTransaction
+            {
+                MaDonHang = orderId,
+                Provider = provider,
+                TransactionNo = transactionNo,
+                Amount = amount,
+                Status = status,
+                ResponseCode = responseCode,
+                PaidAt = paidAt,
+                CreatedAt = DateTime.Now
+            });
+
+            await _db.SaveChangesAsync();
+        }
+
+        private static decimal ParseVnPayAmount(string? amountRaw, decimal fallback)
+        {
+            if (string.IsNullOrWhiteSpace(amountRaw)) return fallback;
+            if (!decimal.TryParse(amountRaw, out var raw)) return fallback;
+            if (raw <= 0) return fallback;
+            return raw / 100m;
+        }
+
+        private static DateTime? ParseVnPayDate(string? payDateRaw)
+        {
+            if (string.IsNullOrWhiteSpace(payDateRaw)) return null;
+            if (DateTime.TryParseExact(payDateRaw, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+            {
+                return dt;
+            }
+            return null;
         }
 
         private async Task<VoucherApplyResult> CalculateVoucherDiscountAsync(string? rawCode, decimal subTotal)

@@ -77,10 +77,20 @@ h6 {
 p {
 	font-size: 16px;
 	font-family: "Cairo", sans-serif;
-	color: #6f6f6f;
+	color: #1c1c1c;
 	font-weight: 400;
 	line-height: 26px;
 	margin: 0 0 15px 0;
+}
+
+/* readability override */
+.text-muted,
+.hero__search__phone__text span,
+.header__cart .header__cart__price,
+.checkout__order ul li,
+.checkout__input input,
+.checkout__input input::placeholder {
+	color: #1c1c1c !important;
 }
 
 img {

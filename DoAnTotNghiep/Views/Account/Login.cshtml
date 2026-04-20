@@ -13,6 +13,13 @@
                     </div>
 
                     <form action="/Account/Login" method="post">
+                        @if (TempData["Success"] != null)
+                        {
+                            <div class="alert alert-success text-center" style="font-size: 14px; padding: 10px; border-radius: 6px;">
+                                @TempData["Success"]
+                            </div>
+                        }
+
                         <div class="checkout__input" style="margin-bottom: 20px;">
                             <p style="color: #444; font-weight: 600;">Tên đăng nhập<span>*</span></p>
                             <input type="text" name="username" placeholder="Nhập tên tài khoản" required
@@ -34,6 +41,10 @@
 
                         <div class="text-center mt-4">
                             <button type="submit" class="site-btn" style="border-radius: 6px; padding: 12px 40px; font-weight: bold; letter-spacing: 1px;">ĐĂNG NHẬP</button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a href="/Account/Register" class="btn btn-outline-primary" style="border-radius: 6px;">Đăng ký tài khoản mới</a>
                         </div>
 
                         <div class="text-center mt-4 mb-4" style="position: relative;">

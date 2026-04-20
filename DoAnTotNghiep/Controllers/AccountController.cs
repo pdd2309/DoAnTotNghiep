@@ -19,6 +19,9 @@ namespace DoAnTotNghiep.Controllers
         [HttpGet]
         public IActionResult Login() => View();
 
+        [HttpGet]
+        public IActionResult Register() => View();
+
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
@@ -52,6 +55,45 @@ namespace DoAnTotNghiep.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult Register(string username, string password, string confirmPassword, string fullName, string email)
+        {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ thông tin bắt buộc.";
+                return View();
+            }
+
+            if (password != confirmPassword)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                return View();
+            }
+
+            var normalizedUserName = username.Trim();
+            var exists = _db.NguoiDungs.Any(u => u.TenDangNhap == normalizedUserName);
+            if (exists)
+            {
+                ViewBag.Error = "Tên đăng nhập đã tồn tại.";
+                return View();
+            }
+
+            var user = new NguoiDung
+            {
+                TenDangNhap = normalizedUserName,
+                MatKhau = password,
+                HoTen = string.IsNullOrWhiteSpace(fullName) ? normalizedUserName : fullName.Trim(),
+                Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
+                VaiTro = "KhachHang"
+            };
+
+            _db.NguoiDungs.Add(user);
+            _db.SaveChanges();
+
+            TempData["Success"] = "Đăng ký thành công. Vui lòng đăng nhập.";
+            return RedirectToAction("Login");
+        }
+
         public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Clear();
@@ -82,6 +124,14 @@ namespace DoAnTotNghiep.Controllers
             if (user == null) return RedirectToAction("Login");
 
             return View(user);
+        }
+
+        [HttpGet]
+        public IActionResult AddressBook()
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+            return View();
         }
 
         [HttpGet]

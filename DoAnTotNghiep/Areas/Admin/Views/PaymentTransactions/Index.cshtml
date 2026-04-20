@@ -1,0 +1,81 @@
+@{
+    ViewData["Title"] = "Giao dich thanh toan";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">L&#7883;ch s&#7917; giao d&#7883;ch thanh to&#225;n</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="paymentTxTable" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>M&#227; &#273;&#417;n</th>
+                        <th>Kh&#225;ch h&#224;ng</th>
+                        <th>Provider</th>
+                        <th>M&#227; giao d&#7883;ch</th>
+                        <th>S&#7889; ti&#7873;n</th>
+                        <th>Tr&#7841;ng th&#225;i</th>
+                        <th>M&#227; response</th>
+                        <th>PaidAt</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function money(v) {
+        return Number(v || 0).toLocaleString('vi-VN') + ' \u0111';
+    }
+
+    async function loadTx() {
+        const res = await fetch('/api/admin/payment-transactions');
+        if (!res.ok) throw new Error('Kh\u00F4ng t\u1EA3i \u0111\u01B0\u1EE3c giao d\u1ECBch');
+        return await res.json();
+    }
+
+    $(async function () {
+        try {
+            const items = await loadTx();
+            $('#paymentTxTable').DataTable({
+                data: items,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columns: [
+                    { data: 'id' },
+                    { data: 'maDonHang', render: d => `#${d}` },
+                    { data: 'khachHang', defaultContent: '' },
+                    { data: 'provider' },
+                    { data: 'transactionNo', defaultContent: '' },
+                    { data: 'amount', render: d => money(d) },
+                    { data: 'status' },
+                    { data: 'responseCode', defaultContent: '' },
+                    { data: 'paidAt', render: d => d ? new Date(d).toLocaleString('vi-VN') : '' }
+                ],
+                language: {
+                    search: 'T\u00ECm ki\u1EBFm:',
+                    lengthMenu: 'Hi\u1EC3n th\u1ECB _MENU_ d\u00F2ng',
+                    info: 'Hi\u1EC3n th\u1ECB _START_ \u0111\u1EBFn _END_ c\u1EE7a _TOTAL_ giao d\u1ECBch',
+                    infoEmpty: 'Kh\u00F4ng c\u00F3 d\u1EEF li\u1EC7u',
+                    zeroRecords: 'Kh\u00F4ng t\u00ECm th\u1EA5y giao d\u1ECBch',
+                    paginate: {
+                        first: '\u0110\u1EA7u',
+                        last: 'Cu\u1ED1i',
+                        next: 'Sau',
+                        previous: 'Tr\u01B0\u1EDBc'
+                    }
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            alert('Kh\u00F4ng th\u1EC3 t\u1EA3i d\u1EEF li\u1EC7u.');
+        }
+    });
+</script>
+}

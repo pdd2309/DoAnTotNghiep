@@ -1,0 +1,287 @@
+@{
+    ViewData["Title"] = "Quan ly voucher";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Qu&#7843;n l&#253; voucher (API)</h6>
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">Th&#234;m voucher</button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="voucherTable" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>T&#234;n</th>
+                        <th>Lo&#7841;i</th>
+                        <th>Gi&#225; tr&#7883;</th>
+                        <th>S&#7889; l&#432;&#7907;ng</th>
+                        <th>Hi&#7875;n th&#7883;</th>
+                        <th>Thao t&#225;c</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="voucherModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherModalTitle">Voucher</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="voucherId" />
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Code</label>
+                        <input type="text" class="form-control" id="code" placeholder="WELCOME10" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>T&#234;n voucher</label>
+                        <input type="text" class="form-control" id="name" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>Lo&#7841;i gi&#7843;m gi&#225;</label>
+                        <select class="form-control" id="discountType">
+                            <option value="Amount">Amount</option>
+                            <option value="Percent">Percent</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Gi&#225; tr&#7883; gi&#7843;m</label>
+                        <input type="number" class="form-control" id="discountValue" min="0" step="0.01" />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Gi&#7843;m t&#7889;i &#273;a</label>
+                        <input type="number" class="form-control" id="maxDiscountAmount" min="0" step="0.01" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label>&#272;&#417;n t&#7889;i thi&#7875;u</label>
+                        <input type="number" class="form-control" id="minOrderAmount" min="0" step="0.01" />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>S&#7889; l&#432;&#7907;ng</label>
+                        <input type="number" class="form-control" id="quantity" min="0" step="1" value="0" />
+                    </div>
+                    <div class="form-group col-md-4 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                            <label class="form-check-label" for="isActive">K&#237;ch ho&#7841;t</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Ng&#224;y b&#7855;t &#273;&#7847;u</label>
+                        <input type="datetime-local" class="form-control" id="startDate" />
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Ng&#224;y k&#7871;t th&#250;c</label>
+                        <input type="datetime-local" class="form-control" id="endDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">&#272;&#243;ng</button>
+                <button type="button" class="btn btn-primary" onclick="saveVoucher()">L&#432;u</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let voucherTable;
+
+        function fmtMoney(v) {
+            return Number(v || 0).toLocaleString('vi-VN');
+        }
+
+        function toInputDateTime(v) {
+            if (!v) return '';
+            const d = new Date(v);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mi = String(d.getMinutes()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+        }
+
+        function openCreateModal() {
+            $('#voucherModalTitle').text('Th\u00eam voucher');
+            $('#voucherId').val('');
+            $('#code').val('');
+            $('#name').val('');
+            $('#discountType').val('Amount');
+            $('#discountValue').val('');
+            $('#maxDiscountAmount').val('');
+            $('#minOrderAmount').val('');
+            $('#quantity').val(0);
+            $('#isActive').prop('checked', true);
+            $('#startDate').val('');
+            $('#endDate').val('');
+            $('#voucherModal').modal('show');
+        }
+
+        async function openEditModal(id) {
+            const res = await fetch(`/api/admin/vouchers/${id}`);
+            if (!res.ok) {
+                alert('Kh\u00f4ng t\u1ea3i \u0111\u01b0\u1ee3c voucher.');
+                return;
+            }
+
+            const item = await res.json();
+            $('#voucherModalTitle').text(`S\u1eeda voucher #${item.id}`);
+            $('#voucherId').val(item.id);
+            $('#code').val(item.code || '');
+            $('#name').val(item.name || '');
+            $('#discountType').val(item.discountType || 'Amount');
+            $('#discountValue').val(item.discountValue ?? '');
+            $('#maxDiscountAmount').val(item.maxDiscountAmount ?? '');
+            $('#minOrderAmount').val(item.minOrderAmount ?? '');
+            $('#quantity').val(item.quantity ?? 0);
+            $('#isActive').prop('checked', !!item.isActive);
+            $('#startDate').val(toInputDateTime(item.startDate));
+            $('#endDate').val(toInputDateTime(item.endDate));
+            $('#voucherModal').modal('show');
+        }
+
+        async function saveVoucher() {
+            const id = $('#voucherId').val();
+
+            const payload = {
+                code: ($('#code').val() || '').trim(),
+                name: ($('#name').val() || '').trim(),
+                discountType: $('#discountType').val(),
+                discountValue: Number($('#discountValue').val() || 0),
+                maxDiscountAmount: $('#maxDiscountAmount').val() === '' ? null : Number($('#maxDiscountAmount').val()),
+                minOrderAmount: $('#minOrderAmount').val() === '' ? null : Number($('#minOrderAmount').val()),
+                quantity: Number($('#quantity').val() || 0),
+                isActive: $('#isActive').is(':checked'),
+                startDate: $('#startDate').val() || null,
+                endDate: $('#endDate').val() || null
+            };
+
+            const isEdit = !!id;
+            const url = isEdit ? `/api/admin/vouchers/${id}` : '/api/admin/vouchers';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const err = await res.text();
+                alert('L\u01b0u voucher th\u1ea5t b\u1ea1i: ' + err);
+                return;
+            }
+
+            $('#voucherModal').modal('hide');
+            await loadVouchers();
+        }
+
+        async function deleteVoucher(id) {
+            if (!confirm('B\u1ea1n ch\u1eafc ch\u1eafn mu\u1ed1n x\u00f3a voucher n\u00e0y?')) return;
+
+            const res = await fetch(`/api/admin/vouchers/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const err = await res.text();
+                alert('X\u00f3a th\u1ea5t b\u1ea1i: ' + err);
+                return;
+            }
+
+            await loadVouchers();
+        }
+
+        async function loadVouchers() {
+            const res = await fetch('/api/admin/vouchers');
+            if (!res.ok) throw new Error('Kh\u00f4ng t\u1ea3i \u0111\u01b0\u1ee3c danh s\u00e1ch voucher');
+            const items = await res.json();
+
+            if (voucherTable) {
+                voucherTable.clear();
+                voucherTable.rows.add(items).draw();
+                return;
+            }
+
+            voucherTable = $('#voucherTable').DataTable({
+                data: items,
+                pageLength: 10,
+                order: [[0, 'desc']],
+                columns: [
+                    { data: 'id' },
+                    { data: 'code' },
+                    { data: 'name', defaultContent: '' },
+                    { data: 'discountType' },
+                    {
+                        data: null,
+                        render: function (d, t, row) {
+                            if (row.discountType === 'Percent') {
+                                return `${row.discountValue}%`;
+                            }
+                            return `${fmtMoney(row.discountValue)} \u0111`;
+                        }
+                    },
+                    { data: 'quantity' },
+                    {
+                        data: 'isActive',
+                        render: d => d
+                            ? '<span class="badge badge-success">B\u1eadt</span>'
+                            : '<span class="badge badge-secondary">T\u1eaft</span>'
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function (d, t, row) {
+                            return `
+                                <button class="btn btn-warning btn-sm mr-1" onclick="openEditModal(${row.id})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteVoucher(${row.id})"><i class="fas fa-trash"></i></button>
+                            `;
+                        }
+                    }
+                ],
+                language: {
+                    search: 'T\u00ecm ki\u1ebfm:',
+                    lengthMenu: 'Hi\u1ec3n th\u1ecb _MENU_ d\u00f2ng',
+                    info: 'Hi\u1ec3n th\u1ecb _START_ \u0111\u1ebfn _END_ c\u1ee7a _TOTAL_ voucher',
+                    infoEmpty: 'Kh\u00f4ng c\u00f3 d\u1eef li\u1ec7u',
+                    zeroRecords: 'Kh\u00f4ng t\u00ecm th\u1ea5y voucher',
+                    paginate: {
+                        first: '\u0110\u1ea7u',
+                        last: 'Cu\u1ed1i',
+                        next: 'Sau',
+                        previous: 'Tr\u01b0\u1edbc'
+                    }
+                }
+            });
+        }
+
+        $(async function () {
+            try {
+                await loadVouchers();
+            } catch (e) {
+                console.error(e);
+                alert('Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch voucher.');
+            }
+        });
+    </script>
+}

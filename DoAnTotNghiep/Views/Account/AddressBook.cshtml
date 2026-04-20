@@ -1,0 +1,162 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "So dia chi";
+}
+
+<section class="breadcrumb-section" style="background-color: #7fad39; padding: 20px 0;">
+    <div class="container text-center">
+        <h2 style="color: white;">S&#7893; &#273;&#7883;a ch&#7881;</h2>
+    </div>
+</section>
+
+<section class="checkout spad">
+    <div class="container">
+        <div class="checkout__form">
+            <h4>Qu&#7843;n l&#253; &#273;&#7883;a ch&#7881; nh&#7853;n h&#224;ng</h4>
+
+            <div class="checkout__input">
+                <p>H&#7885; t&#234;n<span>*</span></p>
+                <input type="text" id="ab-fullname" />
+            </div>
+            <div class="checkout__input">
+                <p>S&#7889; &#273;i&#7879;n tho&#7841;i<span>*</span></p>
+                <input type="text" id="ab-phone" />
+            </div>
+            <div class="checkout__input">
+                <p>&#272;&#7883;a ch&#7881;<span>*</span></p>
+                <input type="text" id="ab-address" />
+            </div>
+            <div class="checkout__input__checkbox" style="margin-bottom:15px;">
+                <label>
+                    <input type="checkbox" id="ab-default">
+                    <span class="checkmark"></span>
+                    &#272;&#7863;t l&#224;m &#273;&#7883;a ch&#7881; m&#7863;c &#273;&#7883;nh
+                </label>
+            </div>
+
+            <button class="site-btn" type="button" id="ab-save-btn">L&#431;U &#272;&#7882;A CH&#7880;</button>
+
+            <hr style="margin:30px 0;" />
+
+            <div id="ab-list"></div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    let editingId = 0;
+    let addresses = [];
+
+    async function loadAddressBook() {
+        const res = await fetch('/api/AddressBookApi/My');
+        if (!res.ok) return;
+
+        addresses = await res.json();
+        renderAddressList();
+    }
+
+    function renderAddressList() {
+        const el = document.getElementById('ab-list');
+        if (!el) return;
+
+        if (!addresses.length) {
+            el.innerHTML = '<p>Ch&#432;a c&#243; &#273;&#7883;a ch&#7881; n&#224;o.</p>';
+            return;
+        }
+
+        el.innerHTML = addresses.map(x => `
+            <div style="border:1px solid #eee; padding:15px; margin-bottom:10px; border-radius:6px;">
+                <div><strong>${x.fullName || ''}</strong> - ${x.phone || ''} ${x.isDefault ? '<span style="color:#28a745;">(m&#7863;c &#273;&#7883;nh)</span>' : ''}</div>
+                <div>${[x.addressLine, x.ward, x.district, x.province].filter(Boolean).join(', ')}</div>
+                <div style="margin-top:10px;">
+                    <button class="btn btn-sm btn-warning mr-1" onclick="editAddress(${x.id})">S&#7917;a</button>
+                    <button class="btn btn-sm btn-danger mr-1" onclick="deleteAddress(${x.id})">X&#243;a</button>
+                    ${!x.isDefault ? `<button class="btn btn-sm btn-info" onclick="setDefaultAddress(${x.id})">&#272;&#7863;t m&#7863;c &#273;&#7883;nh</button>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function editAddress(id) {
+        const item = addresses.find(x => x.id === id);
+        if (!item) return;
+
+        editingId = id;
+        document.getElementById('ab-fullname').value = item.fullName || '';
+        document.getElementById('ab-phone').value = item.phone || '';
+        document.getElementById('ab-address').value = item.addressLine || '';
+        document.getElementById('ab-default').checked = !!item.isDefault;
+        document.getElementById('ab-save-btn').textContent = 'C\u1EACP NH\u1EACT \u0110\u1ECAA CH\u1EC8';
+    }
+
+    async function setDefaultAddress(id) {
+        const res = await fetch(`/api/AddressBookApi/${id}/set-default`, { method: 'POST' });
+        if (!res.ok) {
+            alert('Kh\u00f4ng th\u1EC3 c\u1EADp nh\u1EADt \u0111\u1ECBa ch\u1EC9 m\u1EB7c \u0111\u1ECBnh.');
+            return;
+        }
+
+        await loadAddressBook();
+    }
+
+    async function deleteAddress(id) {
+        if (!confirm('B\u1EA1n ch\u1EAFc ch\u1EAFn mu\u1ED1n x\u00F3a \u0111\u1ECBa ch\u1EC9 n\u00E0y?')) return;
+
+        const res = await fetch(`/api/AddressBookApi/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+            alert('X\u00F3a \u0111\u1ECBa ch\u1EC9 th\u1EA5t b\u1EA1i.');
+            return;
+        }
+
+        await loadAddressBook();
+    }
+
+    async function saveAddress() {
+        const payload = {
+            fullName: (document.getElementById('ab-fullname').value || '').trim(),
+            phone: (document.getElementById('ab-phone').value || '').trim(),
+            addressLine: (document.getElementById('ab-address').value || '').trim(),
+            ward: null,
+            district: null,
+            province: null,
+            isDefault: document.getElementById('ab-default').checked
+        };
+
+        if (!payload.fullName || !payload.phone || !payload.addressLine) {
+            alert('Vui l\u00f2ng nh\u1EADp \u0111\u1EA7y \u0111\u1EE7 th\u00F4ng tin b\u1EAFt bu\u1ED9c.');
+            return;
+        }
+
+        const isEdit = editingId > 0;
+        const url = isEdit ? `/api/AddressBookApi/${editingId}` : '/api/AddressBookApi';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const err = await res.text();
+            alert('L\u01B0u \u0111\u1ECBa ch\u1EC9 th\u1EA5t b\u1EA1i: ' + err);
+            return;
+        }
+
+        editingId = 0;
+        document.getElementById('ab-fullname').value = '';
+        document.getElementById('ab-phone').value = '';
+        document.getElementById('ab-address').value = '';
+        document.getElementById('ab-default').checked = false;
+        document.getElementById('ab-save-btn').textContent = 'L\u01AFU \u0110\u1ECAA CH\u1EC8';
+
+        await loadAddressBook();
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        document.getElementById('ab-save-btn').addEventListener('click', saveAddress);
+        await loadAddressBook();
+    });
+</script>
+}
