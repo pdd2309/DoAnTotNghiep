@@ -3,6 +3,7 @@ using DoAnTotNghiep.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
 namespace DoAnTotNghiep.Controllers
@@ -10,6 +11,7 @@ namespace DoAnTotNghiep.Controllers
     public class AccountController : Controller
     {
         private readonly CuaHangCongNgheDBContext _db;
+        private readonly PasswordHasher<NguoiDung> _passwordHasher = new();
 
         public AccountController(CuaHangCongNgheDBContext db)
         {
@@ -25,10 +27,17 @@ namespace DoAnTotNghiep.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            var user = _db.NguoiDungs.FirstOrDefault(u => u.TenDangNhap == username && u.MatKhau == password);
+            var normalizedUserName = username?.Trim();
+            var user = _db.NguoiDungs.FirstOrDefault(u => u.TenDangNhap == normalizedUserName);
 
-            if (user != null)
+            if (user != null && VerifyPassword(user, password, out var needsRehash))
             {
+                if (needsRehash)
+                {
+                    user.MatKhau = HashPassword(user, password);
+                    _db.SaveChanges();
+                }
+
                 var displayName = user.HoTen ?? user.TenDangNhap;
 
                 // --- LƯU SONG SONG CẢ ID VÀ TÊN ---
@@ -81,11 +90,13 @@ namespace DoAnTotNghiep.Controllers
             var user = new NguoiDung
             {
                 TenDangNhap = normalizedUserName,
-                MatKhau = password,
+                MatKhau = string.Empty,
                 HoTen = string.IsNullOrWhiteSpace(fullName) ? normalizedUserName : fullName.Trim(),
                 Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
                 VaiTro = "KhachHang"
             };
+
+            user.MatKhau = HashPassword(user, password);
 
             _db.NguoiDungs.Add(user);
             _db.SaveChanges();
@@ -122,6 +133,64 @@ namespace DoAnTotNghiep.Controllers
 
             var user = _db.NguoiDungs.FirstOrDefault(u => u.MaNguoiDung == userId.Value);
             if (user == null) return RedirectToAction("Login");
+
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult Profile(string fullName, string email, string currentPassword, string newPassword, string confirmNewPassword)
+        {
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            var user = _db.NguoiDungs.FirstOrDefault(u => u.MaNguoiDung == userId.Value);
+            if (user == null) return RedirectToAction("Login");
+
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                ViewBag.Error = "Họ tên không được để trống.";
+                return View(user);
+            }
+
+            user.HoTen = fullName.Trim();
+            user.Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+
+            var wantsChangePassword = !string.IsNullOrWhiteSpace(newPassword)
+                || !string.IsNullOrWhiteSpace(confirmNewPassword)
+                || !string.IsNullOrWhiteSpace(currentPassword);
+
+            if (wantsChangePassword)
+            {
+                if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmNewPassword))
+                {
+                    ViewBag.Error = "Vui lòng nhập đầy đủ thông tin đổi mật khẩu.";
+                    return View(user);
+                }
+
+                if (!VerifyPassword(user, currentPassword, out _))
+                {
+                    ViewBag.Error = "Mật khẩu hiện tại không đúng.";
+                    return View(user);
+                }
+
+                if (newPassword != confirmNewPassword)
+                {
+                    ViewBag.Error = "Xác nhận mật khẩu mới không khớp.";
+                    return View(user);
+                }
+
+                if (newPassword.Length < 6)
+                {
+                    ViewBag.Error = "Mật khẩu mới phải có ít nhất 6 ký tự.";
+                    return View(user);
+                }
+
+                user.MatKhau = HashPassword(user, newPassword);
+            }
+
+            _db.SaveChanges();
+            HttpContext.Session.SetString("UserName", user.HoTen ?? user.TenDangNhap);
+            ViewBag.Success = "Cập nhật thông tin thành công.";
 
             return View(user);
         }
@@ -163,10 +232,11 @@ namespace DoAnTotNghiep.Controllers
                 user = new NguoiDung
                 {
                     TenDangNhap = providerKey,
-                    MatKhau = "",
+                    MatKhau = string.Empty,
                     HoTen = name ?? "Khách hàng MXH",
                     Email = email ?? (providerKey + "@social.com")
                 };
+                user.MatKhau = HashPassword(user, Guid.NewGuid().ToString("N"));
                 _db.NguoiDungs.Add(user);
                 _db.SaveChanges();
             }
@@ -175,6 +245,48 @@ namespace DoAnTotNghiep.Controllers
             HttpContext.Session.SetString("UserName", user.HoTen ?? user.TenDangNhap);
 
             return RedirectToAction("Index", "Home");
+        }
+
+        private string HashPassword(NguoiDung user, string password)
+        {
+            return _passwordHasher.HashPassword(user, password);
+        }
+
+        private bool VerifyPassword(NguoiDung user, string inputPassword, out bool needsRehash)
+        {
+            needsRehash = false;
+            if (string.IsNullOrWhiteSpace(user.MatKhau) || string.IsNullOrWhiteSpace(inputPassword)) return false;
+
+            PasswordVerificationResult result;
+            try
+            {
+                result = _passwordHasher.VerifyHashedPassword(user, user.MatKhau, inputPassword);
+            }
+            catch
+            {
+                // Legacy or malformed stored password, fallback to plain text compare below.
+                result = PasswordVerificationResult.Failed;
+            }
+
+            if (result == PasswordVerificationResult.Success)
+            {
+                return true;
+            }
+
+            if (result == PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                needsRehash = true;
+                return true;
+            }
+
+            // Legacy fallback: old accounts stored plain text.
+            if (user.MatKhau == inputPassword)
+            {
+                needsRehash = true;
+                return true;
+            }
+
+            return false;
         }
     }
 }

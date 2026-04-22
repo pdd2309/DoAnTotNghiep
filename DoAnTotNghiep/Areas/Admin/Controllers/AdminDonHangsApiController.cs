@@ -101,7 +101,7 @@ namespace DoAnTotNghiep.Areas.Admin.Controllers
                 MaDonHang = order.MaDonHang,
                 Status = order.TrangThai,
                 ChangedByUserId = changedByUserId,
-                Note = "Updated by admin",
+                Note = "\u0110\u01B0\u1EE3c c\u1EADp nh\u1EADt b\u1EDFi qu\u1EA3n tr\u1ECB vi\u00EAn",
                 ChangedAt = DateTime.Now
             });
 

@@ -17,6 +17,7 @@
             const id = sp.maSanPham || sp.MaSanPham || productId;
             const name = sp.tenSanPham || sp.TenSanPham || 'Sản phẩm';
             const desc = sp.moTa || sp.MoTa || '';
+            const safeDescHtml = toSafeMultilineHtml(desc);
             const priceVal = sp.giaTien || sp.GiaTien || 0;
             const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(priceVal);
             const rawImg = sp.hinhAnh || sp.HinhAnh || '/img/product/details/product-details-1.jpg';
@@ -32,7 +33,7 @@
                     <div class="product__details__text">
                         <h3>${name}</h3>
                         <div class="product__details__price"><span>${price}</span></div>
-                        <p>${desc}</p>
+                        <p>${safeDescHtml}</p>
                         <button id="add-to-cart" class="primary-btn">Thêm vào giỏ</button>
                     </div>
                 </div>`;
@@ -46,6 +47,19 @@
             // Sau khi load xong máy thì load đánh giá
             loadReviews(productId);
         });
+
+function escapeHtml(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function toSafeMultilineHtml(text) {
+    return escapeHtml(text).replace(/\r\n|\r|\n/g, '<br>');
+}
 });
 
 // --- BƯỚC 2: HÀM LOAD ĐÁNH GIÁ ---

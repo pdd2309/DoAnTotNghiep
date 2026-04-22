@@ -82,23 +82,72 @@
             minamount = $("#minamount"),
             maxamount = $("#maxamount");
 
+        const applyBtn = document.getElementById('apply-price-filter');
+        const SLIDER_MIN = 0;
+        const SLIDER_MAX = 100000000; // Tối đa 100 triệu
+
+        function getPrice(p) {
+            return Number(p.giaTien ?? p.GiaTien ?? 0);
+        }
+
+        function applyPriceFilter(minVal, maxVal) {
+            const min = Math.max(SLIDER_MIN, Number(minVal || 0));
+            const max = Math.min(SLIDER_MAX, Number(maxVal || SLIDER_MAX));
+            const actualMin = Math.min(min, max);
+            const actualMax = Math.max(min, max);
+
+            const filteredByPrice = currentList.filter(p => {
+                const price = getPrice(p);
+                return price >= actualMin && price <= actualMax;
+            });
+
+            renderProducts(filteredByPrice);
+        }
+
         rangeSlider.slider({
             range: true,
-            min: 0,
-            max: 50000000, // Tối đa 50 triệu
-            values: [0, 50000000],
+            min: SLIDER_MIN,
+            max: SLIDER_MAX,
+            values: [SLIDER_MIN, SLIDER_MAX],
             slide: function (event, ui) {
-                minamount.val(new Intl.NumberFormat('vi-VN').format(ui.values[0]) + "đ");
-                maxamount.val(new Intl.NumberFormat('vi-VN').format(ui.values[1]) + "đ");
+                minamount.val(ui.values[0]);
+                maxamount.val(ui.values[1]);
             },
             stop: function (event, ui) {
-                // Lọc sản phẩm theo giá khi buông chuột
-                const filteredByPrice = currentList.filter(p => p.giaTien >= ui.values[0] && p.giaTien <= ui.values[1]);
-                renderProducts(filteredByPrice);
+                applyPriceFilter(ui.values[0], ui.values[1]);
             }
         });
-        // Hiển thị giá mặc định ban đầu
-        minamount.val("0đ");
-        maxamount.val("50.000.000đ");
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', function () {
+                const minInput = parseFloat(minamount.val());
+                const maxInput = parseFloat(maxamount.val());
+
+                const min = isNaN(minInput) ? SLIDER_MIN : Math.max(SLIDER_MIN, Math.min(minInput, SLIDER_MAX));
+                const max = isNaN(maxInput) ? SLIDER_MAX : Math.max(SLIDER_MIN, Math.min(maxInput, SLIDER_MAX));
+
+                const values = [Math.min(min, max), Math.max(min, max)];
+
+                rangeSlider.slider('values', values);
+                applyPriceFilter(values[0], values[1]);
+            });
+        }
+
+        minamount.on('keydown', function (e) {
+            if (e.key === 'Enter' && applyBtn) {
+                e.preventDefault();
+                applyBtn.click();
+            }
+        });
+
+        maxamount.on('keydown', function (e) {
+            if (e.key === 'Enter' && applyBtn) {
+                e.preventDefault();
+                applyBtn.click();
+            }
+        });
+
+        minamount.val(SLIDER_MIN);
+        maxamount.val(SLIDER_MAX);
     }
 });

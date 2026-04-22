@@ -13,35 +13,65 @@
 <section class="checkout spad">
     <div class="container">
         <div class="checkout__form">
-            <h4>T&#224;i kho&#7843;n c&#7911;a b&#7841;n</h4>
-            <div class="row">
-                <div class="col-lg-8 col-md-10">
-                    <div class="checkout__input">
-                        <p>M&#227; ng&#432;&#7901;i d&#249;ng</p>
-                        <input type="text" value="@Model.MaNguoiDung" readonly>
-                    </div>
-                    <div class="checkout__input">
-                        <p>T&#234;n &#273;&#259;ng nh&#7853;p</p>
-                        <input type="text" value="@Model.TenDangNhap" readonly>
-                    </div>
-                    <div class="checkout__input">
-                        <p>H&#7885; t&#234;n</p>
-                        <input type="text" value="@Model.HoTen" readonly>
-                    </div>
-                    <div class="checkout__input">
-                        <p>Email</p>
-                        <input type="text" value="@Model.Email" readonly>
-                    </div>
-                    <div class="checkout__input">
-                        <p>Vai tr&#242;</p>
-                        <input type="text" value="@Model.VaiTro" readonly>
-                    </div>
+            <h4>C&#7853;p nh&#7853;t t&#224;i kho&#7843;n</h4>
 
-                    <a href="/Account/AddressBook" class="site-btn" style="margin-right:10px;">S&#7892; &#272;&#7882;A CH&#7880;</a>
-                    <a href="/Account/LichSuMuaHang" class="site-btn" style="margin-right:10px;">XEM &#272;&#416;N H&#192;NG</a>
-                    <a href="/Account/Logout" class="site-btn" style="background:#dc3545 !important;">&#272;&#258;NG XU&#7844;T</a>
+            @if (ViewBag.Success != null)
+            {
+                <div class="alert alert-success">@ViewBag.Success</div>
+            }
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <form method="post" action="/Account/Profile">
+                <div class="row">
+                    <div class="col-lg-8 col-md-10">
+                        <div class="checkout__input">
+                            <p>M&#227; ng&#432;&#7901;i d&#249;ng</p>
+                            <input type="text" value="@Model.MaNguoiDung" readonly>
+                        </div>
+                        <div class="checkout__input">
+                            <p>T&#234;n &#273;&#259;ng nh&#7853;p</p>
+                            <input type="text" value="@Model.TenDangNhap" readonly>
+                        </div>
+                        <div class="checkout__input">
+                            <p>H&#7885; t&#234;n<span>*</span></p>
+                            <input type="text" name="fullName" value="@Model.HoTen" required>
+                        </div>
+                        <div class="checkout__input">
+                            <p>Email</p>
+                            <input type="email" name="email" value="@Model.Email">
+                        </div>
+                        <div class="checkout__input">
+                            <p>Vai tr&#242;</p>
+                            <input type="text" value="@Model.VaiTro" readonly>
+                        </div>
+
+                        <hr />
+                        <h5 style="margin-bottom: 15px;">&#272;&#7893;i m&#7853;t kh&#7849;u (t&#249;y ch&#7885;n)</h5>
+
+                        <div class="checkout__input">
+                            <p>M&#7853;t kh&#7849;u hi&#7879;n t&#7841;i</p>
+                            <input type="password" name="currentPassword" autocomplete="current-password">
+                        </div>
+                        <div class="checkout__input">
+                            <p>M&#7853;t kh&#7849;u m&#7899;i</p>
+                            <input type="password" name="newPassword" autocomplete="new-password">
+                        </div>
+                        <div class="checkout__input">
+                            <p>X&#225;c nh&#7853;n m&#7853;t kh&#7849;u m&#7899;i</p>
+                            <input type="password" name="confirmNewPassword" autocomplete="new-password">
+                        </div>
+
+                        <button type="submit" class="site-btn" style="margin-right:10px;">L&#431;U TH&#212;NG TIN</button>
+                        <a href="/Account/AddressBook" class="site-btn" style="margin-right:10px;">S&#7892; &#272;&#7882;A CH&#7880;</a>
+                        <a href="/Account/LichSuMuaHang" class="site-btn" style="margin-right:10px;">XEM &#272;&#416;N H&#192;NG</a>
+                        <a href="/Account/Logout" class="site-btn" style="background:#dc3545 !important;">&#272;&#258;NG XU&#7844;T</a>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </section>

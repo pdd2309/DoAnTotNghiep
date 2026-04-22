@@ -57,9 +57,10 @@
                                 <span tabindex="0" class="ui-slider-handle ui-corner-all ui-state-default"></span>
                             </div>
                             <div class="range-slider">
-                                <div class="price-input">
-                                    <input type="text" id="minamount">
-                                    <input type="text" id="maxamount">
+                                <div class="price-input" style="display:flex; gap:8px; align-items:center;">
+                                    <input type="number" id="minamount" min="0" step="1000" placeholder="Từ" style="max-width: 120px;">
+                                    <input type="number" id="maxamount" min="0" step="1000" placeholder="Đến" style="max-width: 120px;">
+                                    <button type="button" id="apply-price-filter" class="site-btn" style="padding:8px 14px; font-size:12px;">Lọc</button>
                                 </div>
                             </div>
                         </div>

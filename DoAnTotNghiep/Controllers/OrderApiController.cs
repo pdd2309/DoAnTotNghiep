@@ -254,7 +254,7 @@ namespace DoAnTotNghiep.Controllers
             _db.DonHangs.Add(newOrder);
             await _db.SaveChangesAsync();
 
-            await AddOrderStatusHistoryAsync(newOrder.MaDonHang, status, userId, "Order created");
+            await AddOrderStatusHistoryAsync(newOrder.MaDonHang, status, userId, "\u0110\u01A1n h\u00E0ng \u0111\u01B0\u1EE3c t\u1EA1o");
 
             foreach (var item in cart.CartItems)
             {
