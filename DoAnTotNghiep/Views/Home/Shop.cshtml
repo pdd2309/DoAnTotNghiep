@@ -3,19 +3,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<section class="breadcrumb-section set-bg" data-setbg="/img/breadcrumb.jpg">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <div class="breadcrumb__text">
-                    <h2>Cửa Hàng Công Nghệ</h2>
-                    <div class="breadcrumb__option">
-                        <a href="/">Trang Chủ</a>
-                        <span>Cửa Hàng</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<section class="breadcrumb-section" style="background-color: #7fad39; padding: 20px 0;">
+    <div class="container text-center">
+        <h2 style="color: white;">Cửa Hàng Công Nghệ</h2>
     </div>
 </section>
 
@@ -58,11 +48,30 @@
                             </div>
                             <div class="range-slider">
                                 <div class="price-input" style="display:flex; gap:8px; align-items:center;">
-                                    <input type="number" id="minamount" min="0" step="1000" placeholder="Từ" style="max-width: 120px;">
-                                    <input type="number" id="maxamount" min="0" step="1000" placeholder="Đến" style="max-width: 120px;">
-                                    <button type="button" id="apply-price-filter" class="site-btn" style="padding:8px 14px; font-size:12px;">Lọc</button>
+                                    @* Thêm style để ẩn nút tăng giảm trực tiếp vào input *@
+                                    <input type="number" id="minamount" min="0" step="1000" placeholder="Từ"
+                                           style="max-width: 100px; -moz-appearance: textfield; appearance: none; border: 1px solid #ebebeb; padding-left: 10px; height: 40px;">
+
+                                    <input type="number" id="maxamount" min="0" step="1000" placeholder="Đến"
+                                           style="max-width: 100px; -moz-appearance: textfield; appearance: none; border: 1px solid #ebebeb; padding-left: 10px; height: 40px;">
+
+                                    <button type="button" id="apply-price-filter" class="site-btn"
+                                            style="padding:8px 14px; font-size:12px; background-color: #7fad39; border: none; color: white; height: 40px;">
+                                        Lọc
+                                    </button>
                                 </div>
                             </div>
+
+                            <style>
+                                /* Đoạn này để xử lý triệt để trên Chrome, Safari, Edge và Opera */
+                                #minamount::-webkit-outer-spin-button,
+                                #minamount::-webkit-inner-spin-button,
+                                #maxamount::-webkit-outer-spin-button,
+                                #maxamount::-webkit-inner-spin-button {
+                                    -webkit-appearance: none;
+                                    margin: 0;
+                                }
+                            </style>
                         </div>
                     </div>
                 </div>
@@ -81,6 +90,7 @@
                 <div class="row" id="product-list-shop">
                     <div class="col-12 text-center"><p>Đang tải sản phẩm...</p></div>
                 </div>
+                <div class="product__pagination" id="shop-pagination"></div>
             </div>
         </div>
     </div>

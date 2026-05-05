@@ -3480,3 +3480,60 @@ ol {
 		font-size: 24px;
 	}
 }
+/* Tạo khung cho cả sản phẩm trang chủ và trang shop */
+.featured__item, .product__item {
+	border: 1px solid #ebebeb; /* Viền xám nhạt */
+	border-radius: 12px; /* Bo góc cho hiện đại */
+	padding: 15px; /* Khoảng cách từ sản phẩm đến viền */
+	background: #fff; /* Nền trắng */
+	transition: all 0.3s; /* Hiệu ứng mượt khi di chuột */
+	margin-bottom: 30px;
+	height: 100%; /* Cho các khung cao bằng nhau */
+}
+
+	/* Hiệu ứng đổ bóng khi khách rà chuột vào */
+	.featured__item:hover, .product__item:hover {
+		box-shadow: 0 10px 20px rgba(0,0,0,0.1); /* Đổ bóng nhẹ */
+		border-color: #7fad39; /* Đổi màu viền sang màu chủ đạo của web */
+		transform: translateY(-5px); /* Sản phẩm hơi bay lên */
+	}
+
+/* Căn chỉnh ảnh sản phẩm bên trong khung */
+.featured__item__pic, .product__item__pic {
+	border-radius: 8px;
+	overflow: hidden;
+	background-size: contain; /* Để ảnh không bị vỡ hoặc mất góc */
+	background-repeat: no-repeat;
+	background-position: center;
+}
+/* --- Khung cho ảnh trong trang Details --- */
+
+/* 1. Tạo khung bao quanh thẻ chứa ảnh */
+.product__details__pic, .product-details-img-box { /* Thay class này bằng class thật trong HTML của ông nếu khác */
+	border: 1px solid #ebebeb; /* Viền mỏng tinh tế */
+	border-radius: 15px; /* Bo góc cho hiện đại, bo nhiều hơn bên ngoài tí */
+	padding: 10px; /* Khoảng cách từ ảnh đến viền */
+	background: #fff; /* Nền trắng */
+	box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* Đổ bóng cực nhẹ cho sang */
+	overflow: hidden; /* Đảm bảo ảnh không tràn ra ngoài khung */
+	display: flex; /* Căn giữa ảnh */
+	justify-content: center;
+	align-items: center;
+	height: 100%; /* Cho khung cao bằng phần bên cạnh */
+	min-height: 400px; /* Độ cao tối thiểu cho khung (tùy chỉnh cho hợp mắt) */
+}
+
+	/* 2. Ép cái ảnh nằm gọn trong khung (Quan trọng nhất để không mất góc) */
+	.product__details__pic img, .product-details-img-box img {
+		max-width: 100%; /* Chiều rộng tối đa bằng khung */
+		max-height: 100%; /* Chiều cao tối đa bằng khung */
+		width: auto; /* Giữ tỷ lệ ảnh chuẩn */
+		height: auto;
+		object-fit: contain; /* Đảm bảo ảnh hiện trọn vẹn, không bị cắt hay méo */
+		transition: transform 0.3s ease; /* Hiệu ứng zoom nhẹ khi hover */
+	}
+
+	/* Hiệu ứng zoom nhẹ khi khách rà chuột vào ảnh */
+	.product__details__pic:hover img, .product-details-img-box:hover img {
+		transform: scale(1.05); /* Phóng to ảnh 5% */
+	}

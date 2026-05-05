@@ -45,7 +45,31 @@
                     { data: 'maDonHang', render: d => `#${d}` },
                     { data: 'status' },
                     { data: 'changedByUser', defaultContent: '' },
-                    { data: 'note', defaultContent: '' },
+                    {
+                        data: 'note',
+                        defaultContent: '',
+                        render: function (d) {
+                            if (!d) return '';
+                            const raw = d.toString();
+                            const normalized = raw.toLowerCase();
+
+                            if (normalized.includes('order created')) return '??n hàng ???c t?o';
+                            if (normalized.includes('updated by admin')) return '???c c?p nh?t b?i qu?n tr? viên';
+                            if (normalized.includes('user confirmed order received')) return 'Khách hàng xác nh?n ?ã nh?n hàng';
+
+                            if (normalized.includes('??c c') || normalized.includes('c?p nh?t') || normalized.includes('qu?n tr?')) {
+                                return '???c c?p nh?t b?i qu?n tr? viên';
+                            }
+                            if (normalized.includes('??n h') && (normalized.includes('??c t?o') || normalized.includes('???c t?o'))) {
+                                return '??n hàng ???c t?o';
+                            }
+                            if (normalized.includes('kh') && (normalized.includes('x?c nh?n') || normalized.includes('?ã nh?n') || normalized.includes('nh?n h'))) {
+                                return 'Khách hàng xác nh?n ?ã nh?n hàng';
+                            }
+
+                            return raw;
+                        }
+                    },
                     { data: 'changedAt', render: d => d ? new Date(d).toLocaleString('vi-VN') : '' }
                 ],
                 language: {

@@ -208,7 +208,19 @@ namespace DoAnTotNghiep.Controllers
                 _db.DonHangs.Update(order);
                 await _db.SaveChangesAsync();
 
-                await AddOrderStatusHistoryAsync(order.MaDonHang, StatusDaGiaoHang, userId, "User confirmed order received");
+                await AddOrderStatusHistoryAsync(order.MaDonHang, StatusDaGiaoHang, userId, "Kh\u00E1ch h\u00E0ng x\u00E1c nh\u1EADn \u0111\u00E3 nh\u1EADn h\u00E0ng");
+
+                var tx = await _db.PaymentTransactions
+                    .Where(t => t.MaDonHang == order.MaDonHang)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (tx != null && string.Equals(tx.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                {
+                    tx.Status = "Success";
+                    tx.PaidAt = DateTime.Now;
+                    await _db.SaveChangesAsync();
+                }
 
                 return Ok(new { success = true, message = "Updated." });
             }

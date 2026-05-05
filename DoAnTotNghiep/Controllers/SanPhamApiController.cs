@@ -38,6 +38,55 @@ namespace DoAnTotNghiep.Controllers
             }
         }
 
+        [HttpGet("top-selling")]
+        public async Task<IActionResult> GetTopSelling([FromQuery] int take = 8)
+        {
+            if (take <= 0) take = 8;
+
+            try
+            {
+                var topSales = await _context.ChiTietDonHangs
+                    .Where(ct => ct.MaSanPham != null)
+                    .GroupBy(ct => ct.MaSanPham)
+                    .Select(g => new
+                    {
+                        MaSanPham = g.Key.Value,
+                        SoLuongBan = g.Sum(x => x.SoLuong ?? 0)
+                    })
+                    .OrderByDescending(x => x.SoLuongBan)
+                    .Take(take)
+                    .ToListAsync();
+
+                if (topSales.Count == 0)
+                {
+                    var fallback = await _context.SanPhams
+                        .OrderByDescending(sp => sp.MaSanPham)
+                        .Take(take)
+                        .ToListAsync();
+
+                    return Ok(new { success = true, data = fallback, count = fallback.Count });
+                }
+
+                var topIds = topSales.Select(x => x.MaSanPham).ToList();
+                var products = await _context.SanPhams
+                    .Where(sp => topIds.Contains(sp.MaSanPham))
+                    .ToListAsync();
+
+                var ordered = topSales
+                    .Join(products, s => s.MaSanPham, p => p.MaSanPham, (s, p) => new { s, p })
+                    .OrderByDescending(x => x.s.SoLuongBan)
+                    .Select(x => x.p)
+                    .ToList();
+
+                return Ok(new { success = true, data = ordered, count = ordered.Count });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy top sản phẩm bán chạy");
+                return StatusCode(500, new { success = false, message = "Có lỗi xảy ra", error = ex.Message });
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<SanPham>> GetSanPhamById(int id)
         {

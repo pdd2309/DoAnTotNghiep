@@ -1,9 +1,14 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
     const productList = document.getElementById('product-list-shop');
     const categoryUl = document.getElementById('category-list-shop');
+    const paginationEl = document.getElementById('shop-pagination');
     if (!productList) return;
 
     let allProducts = []; // Biến lưu toàn bộ sản phẩm để lọc giá nhanh
+    let baseFiltered = [];
+    let filteredList = [];
+    let currentPage = 1;
+    const pageSize = 9;
 
     const urlParams = new URLSearchParams(window.location.search);
     const searchString = urlParams.get('searchString')?.toLowerCase() || "";
@@ -39,14 +44,15 @@
             }
 
             // Lưu lại danh sách sau khi lọc URL để thanh giá kéo trên đống này
-            renderProducts(filtered);
+            baseFiltered = filtered;
+            setFilteredList(filtered);
             initPriceSlider(filtered);
         });
 
     // HÀM VẼ SẢN PHẨM
-    function renderProducts(products) {
+    function renderProducts(products, totalCount) {
         const countElem = document.getElementById('product-count');
-        if (countElem) countElem.innerText = products.length;
+        if (countElem) countElem.innerText = totalCount ?? products.length;
 
         if (products.length === 0) {
             productList.innerHTML = `<div class="col-12 text-center"><p>Không tìm thấy sản phẩm nào.</p></div>`;
@@ -76,6 +82,51 @@
         productList.innerHTML = html;
     }
 
+    function renderPage() {
+        const totalCount = filteredList.length;
+        const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = (currentPage - 1) * pageSize;
+        const pageItems = filteredList.slice(start, start + pageSize);
+        renderProducts(pageItems, totalCount);
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        if (!paginationEl) return;
+
+        if (totalPages <= 1) {
+            paginationEl.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<a href="#" data-page="${i}" class="${i === currentPage ? 'active' : ''}">${i}</a>`;
+        }
+        paginationEl.innerHTML = html;
+    }
+
+    function setFilteredList(list) {
+        filteredList = list || [];
+        currentPage = 1;
+        renderPage();
+    }
+
+    if (paginationEl) {
+        paginationEl.addEventListener('click', function (e) {
+            const target = e.target.closest('a[data-page]');
+            if (!target) return;
+            e.preventDefault();
+            const page = parseInt(target.dataset.page, 10);
+            if (!isNaN(page)) {
+                currentPage = page;
+                renderPage();
+            }
+        });
+    }
+
     // HÀM KÍCH HOẠT THANH GIÁ (Khớp tiền VNĐ)
     function initPriceSlider(currentList) {
         const rangeSlider = $(".price-range"),
@@ -101,7 +152,7 @@
                 return price >= actualMin && price <= actualMax;
             });
 
-            renderProducts(filteredByPrice);
+            setFilteredList(filteredByPrice);
         }
 
         rangeSlider.slider({

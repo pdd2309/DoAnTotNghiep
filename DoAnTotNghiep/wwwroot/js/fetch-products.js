@@ -2,8 +2,8 @@
     const productList = document.getElementById('product-list');
     if (!productList) return;
 
-    // Gọi đúng tên Controller: SanPhamApi
-    fetch('/api/SanPhamApi')
+    // Lấy top sản phẩm bán chạy
+    fetch('/api/SanPhamApi/top-selling?take=8')
         .then(response => response.json())
         .then(res => {
             // API trả về Object có chứa field "data"

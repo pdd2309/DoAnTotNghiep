@@ -93,6 +93,21 @@ namespace DoAnTotNghiep.Areas.Admin.Controllers
             order.TrangThai = request.TrangThai;
             await _context.SaveChangesAsync();
 
+            if (order.TrangThai == StatusDaGiao || order.TrangThai == StatusDaThanhToan)
+            {
+                var tx = await _context.PaymentTransactions
+                    .Where(t => t.MaDonHang == order.MaDonHang)
+                    .OrderByDescending(t => t.CreatedAt)
+                    .FirstOrDefaultAsync();
+
+                if (tx != null && string.Equals(tx.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                {
+                    tx.Status = "Success";
+                    tx.PaidAt = DateTime.Now;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             var currentUserIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             int? changedByUserId = int.TryParse(currentUserIdClaim, out var uid) ? uid : null;
 
